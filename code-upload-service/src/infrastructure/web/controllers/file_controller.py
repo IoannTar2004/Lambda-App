@@ -1,9 +1,10 @@
 from fastapi import APIRouter, UploadFile
+from infrastructure.config.usecase_config import upload_code_usecase
 
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["File Controller"])
 
 
 @router.post("/upload-code")
 async def upload_code(uploaded: UploadFile):
-    file = uploaded.file
-    return uploaded.filename
+    await upload_code_usecase.upload_code(uploaded)
+    return {"ok": True}
