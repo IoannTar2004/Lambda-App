@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    frontend_url: str
     storage_url: str
     storage_access_key: str
     storage_secret_key: str
