@@ -1,0 +1,19 @@
+#save-code {
+    padding: 10px;
+    font-size: 15px;
+    background-color: #1E1E1E;
+    color: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border: #1E1E1E;
+}
+
+#save-code:hover {
+    cursor: pointer;
+    background-color: black;
+}
+
+#save-code:active {
+    outline: 2px solid white;
+    outline-offset: -2px
+}
