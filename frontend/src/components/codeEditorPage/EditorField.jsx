@@ -9,11 +9,11 @@ const EditorField = () => {
     return True`
 
   const saveCode = () => {
-    axios.post("/api/users/save-code",
+    axios.post("/api/code/save-code",
         {
             filename: "script.py",
             code: editorRef.current.getValue(),
-        })
+        }).then(() => console.log("ok")).catch(console.error)
   }
 
   const editorRef = useRef(null);
