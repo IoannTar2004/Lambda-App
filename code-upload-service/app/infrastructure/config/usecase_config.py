@@ -1,12 +1,12 @@
 from application.usecase.save_code_usecase import SaveCodeUseCase
-from application.usecase.storage_operations_usecase import UserFilesOperationsUseCase
-from s3settings import s3_settings
+from application.usecase.user_files_operations_usecase import UserFilesOperationsUseCase
+from settings import settings
 from infrastructure.storage.async_s3_service import AsyncS3Service
 
-save_code_usecase = SaveCodeUseCase(AsyncS3Service(s3_settings.storage_url,
-                                                   s3_settings.storage_access_key,
-                                                   s3_settings.storage_secret_key))
+save_code_usecase = SaveCodeUseCase(AsyncS3Service(settings.S3_URL,
+                                                   settings.S3_ACCESS_KEY,
+                                                   settings.S3_SECRET_KEY))
 
-storage_operations_usecase = UserFilesOperationsUseCase(AsyncS3Service(s3_settings.storage_url,
-                                                                     s3_settings.storage_access_key,
-                                                                     s3_settings.storage_secret_key))
+user_files_operations_usecase = UserFilesOperationsUseCase(AsyncS3Service(settings.S3_URL,
+                                                                          settings.S3_ACCESS_KEY,
+                                                                          settings.S3_SECRET_KEY))

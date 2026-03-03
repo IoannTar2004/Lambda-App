@@ -1,5 +1,5 @@
 from application.ports.async_storage import AsyncStorage
-from s3settings import s3_settings
+from settings import settings
 
 
 class SaveCodeUseCase:
@@ -8,4 +8,5 @@ class SaveCodeUseCase:
         self.storage = storage
 
     async def save(self, filename: str, code: str) -> None:
-        await self.storage.upload(s3_settings.s3_user_files_bucket, "1/my_project/" + filename, code.encode("utf-8"))
+        await self.storage.upload(settings.S3_USER_FILES_BUCKET, "1/my_project/" + filename, code.encode("utf-8"))
+        # TODO убрать захардкоженный путь

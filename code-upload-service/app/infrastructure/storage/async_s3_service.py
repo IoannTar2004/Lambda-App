@@ -5,7 +5,7 @@ import aioboto3
 from fastapi import HTTPException
 
 from application.ports.async_storage import AsyncStorage
-from s3settings import s3_settings
+from settings import settings
 
 
 class AsyncS3Service(AsyncStorage):
@@ -35,7 +35,7 @@ class AsyncS3Service(AsyncStorage):
                 if not chunk:
                     break
                 total_size += len(chunk)
-                if total_size > int(s3_settings.max_file_size_mb) * 1024 * 1024:
+                if total_size > int(settings.MAX_FILE_SIZE_MB) * 1024 * 1024:
                     raise HTTPException(status_code=413, detail="File size exceeds the limit!")
 
                 yield chunk
@@ -45,6 +45,11 @@ class AsyncS3Service(AsyncStorage):
             await s3_client.remove_object(bucket_name=bucket,
                                           object_name=path)
 
-
+    async def listdir(self, bucket: str | None, path: str) -> tuple[list[Any], list[Any]]:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            response = await s3_client.list_objects(Bucket=bucket, Prefix=path, Delimiter="/")
+            files = response["Contents"] if "Contents" in response else []
+            directories = response["CommonPrefixes"] if "CommonPrefixes" in response else []
+            return directories, files
 
 
