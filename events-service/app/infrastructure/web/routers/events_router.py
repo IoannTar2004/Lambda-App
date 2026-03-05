@@ -10,8 +10,7 @@ router = APIRouter(prefix="/api/events", tags=["Events Controller"])
 
 
 @router.get("/functions-list")
-async def functions_list(filename: str, request: Request):
-    res = await get_service_url(filename)
-    # redis_client = RedisClient(request.app.state.redis)
-    # res = await FunctionsListUseCase(redis_client, HttpxAsyncRequest()).execute(filename)
+async def functions_list(path: str, request: Request):
+    redis_client = RedisClient(request.app.state.redis)
+    res = await FunctionsListUseCase(redis_client, HttpxAsyncRequest()).execute(path)
     return res

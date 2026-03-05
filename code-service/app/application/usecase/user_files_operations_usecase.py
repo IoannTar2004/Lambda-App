@@ -1,7 +1,8 @@
 import os.path
 from pathlib import Path
 
-from fastapi import UploadFile
+from botocore.exceptions import ClientError
+from fastapi import UploadFile, HTTPException
 
 from application.ports.async_storage import AsyncStorage
 from application.usecase.dto.listdir_dto import ListdirDto
@@ -14,11 +15,12 @@ class UserFilesOperationsUseCase:
 
     async def upload(self, file: UploadFile):
         data = file.file.read()
-        await self.storage.upload(settings.S3_USER_FILES_BUCKET, file.filename, data)
+        await self.storage.upload(settings.S3_USER_FILES_BUCKET, "300904/my_project/" + file.filename, data)
 
     async def download(self, filename: str):
-        file = self.storage.download(settings.S3_USER_FILES_BUCKET, filename)
-        return file
+        if await self.storage.exists(settings.S3_USER_FILES_BUCKET, filename):
+            return self.storage.download(settings.S3_USER_FILES_BUCKET, filename)
+        raise HTTPException(status_code=404, detail="File not found")
 
     async def listdir(self, path: str):
         directories, files = await self.storage.listdir(settings.S3_USER_FILES_BUCKET, path)

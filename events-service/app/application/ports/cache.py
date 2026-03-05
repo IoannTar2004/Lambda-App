@@ -8,5 +8,5 @@ class Cache(ABC):
         pass
 
     @abstractmethod
-    async def get(self, key: str) -> str:
+    async def get(self, key: str):
         pass

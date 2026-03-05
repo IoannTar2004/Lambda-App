@@ -17,5 +17,9 @@ class AsyncStorage(ABC):
         pass
 
     @abstractmethod
+    async def exists(self, bucket: str | None, path: str) -> bool:
+        pass
+
+    @abstractmethod
     async def listdir(self, bucket: str | None, path: str) -> tuple[list[Any], list[Any]]:
         pass

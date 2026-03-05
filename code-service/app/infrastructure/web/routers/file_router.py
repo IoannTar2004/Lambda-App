@@ -1,5 +1,6 @@
 import os.path
 
+from botocore.exceptions import ClientError
 from fastapi import APIRouter, UploadFile
 from starlette.responses import StreamingResponse
 
@@ -24,11 +25,11 @@ async def upload_file(file: UploadFile):
     return {"ok": True}
 
 @router.get("/download-file")
-async def download_file(filename: str):
-    file = await user_files_operations_usecase.download(filename)
+async def download_file(path: str):
+    file = await user_files_operations_usecase.download(path)
     return StreamingResponse(file, media_type="application/octet-stream",
                              headers={
-                                 "Content-Disposition": f'attachment; filename="{os.path.basename(filename)}"'
+                                 "Content-Disposition": f'attachment; filename="{os.path.basename(path)}"'
                              })
 
 @router.get("/listdir")

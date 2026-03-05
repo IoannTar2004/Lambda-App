@@ -2,6 +2,7 @@ import io
 from typing import Any, AsyncGenerator
 
 import aioboto3
+from botocore.exceptions import ClientError
 from fastapi import HTTPException
 
 from application.ports.async_storage import AsyncStorage
@@ -27,6 +28,7 @@ class AsyncS3Service(AsyncStorage):
     async def download(self, bucket: str | None, path: str) -> AsyncGenerator[bytes, Any]:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
             response = await s3_client.get_object(Bucket=bucket, Key=path)
+
             chunk_size = 1024 * 1024
             total_size = 0
 
@@ -44,6 +46,14 @@ class AsyncS3Service(AsyncStorage):
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
             await s3_client.remove_object(bucket_name=bucket,
                                           object_name=path)
+
+    async def exists(self, bucket: str | None, path: str) -> bool:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            try:
+                await s3_client.head_object(Bucket=bucket, Key=path)
+                return True
+            except ClientError:
+                return False
 
     async def listdir(self, bucket: str | None, path: str) -> tuple[list[Any], list[Any]]:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:

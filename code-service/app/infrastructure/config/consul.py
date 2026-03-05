@@ -1,4 +1,5 @@
 import httpx
+from fastapi import HTTPException
 
 from settings import settings
 
@@ -23,8 +24,14 @@ async def service_register() -> None:
         res.raise_for_status()
 
 async def get_service_url(service_name: str) -> str:
+    if not service_name:
+        return ""
+
     async with httpx.AsyncClient() as client:
         res = await client.get(f"{consul_url}/v1/health/service/{service_name}")
+        if not res.json():
+            raise HTTPException(status_code=404, detail="Service not found")
+
         service = res.json()[0]["Service"]
         return f"http://{service['Address']}:{service['Port']}"
 
