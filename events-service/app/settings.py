@@ -5,12 +5,6 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    S3_URL: str
-    S3_ACCESS_KEY: str
-    S3_SECRET_KEY: str
-    MAX_FILE_SIZE_MB: str
-    S3_USER_FILES_BUCKET: str
-
     KAFKA_BOOTSTRAP_SERVERS: str
 
     class Config:
