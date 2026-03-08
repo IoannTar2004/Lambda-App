@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     ACCESS_PORT: str
     SERVICE_NAME: str
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+
     class Config:
         env_file = Path(__file__).parent.parent / os.getenv("ENV_FILE", ".env")
 

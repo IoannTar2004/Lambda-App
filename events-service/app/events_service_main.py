@@ -1,4 +1,3 @@
-import os
 from contextlib import asynccontextmanager
 
 import redis.asyncio as redis
@@ -14,11 +13,11 @@ load_dotenv(settings.Config.env_file)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.redis = redis.Redis(host='localhost', port=6379, db=0)
+    app.state.cache = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
     await service_register()
     yield
     await service_unregister()
-    await app.state.redis.close()
+    await app.state.cache.close()
 
 
 app = FastAPI(lifespan=lifespan)

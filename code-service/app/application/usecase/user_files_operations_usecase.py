@@ -1,21 +1,23 @@
 import os.path
 from pathlib import Path
 
-from botocore.exceptions import ClientError
 from fastapi import UploadFile, HTTPException
 
 from application.ports.async_storage import AsyncStorage
+from application.ports.cache import Cache
 from application.usecase.dto.listdir_dto import ListdirDto
 from settings import settings
 
 
 class UserFilesOperationsUseCase:
-    def __init__(self, storage: AsyncStorage):
+    def __init__(self, storage: AsyncStorage, cache: Cache=None):
         self.storage = storage
+        self.cache = cache
 
-    async def upload(self, file: UploadFile):
+    async def upload(self, file: UploadFile, directory: str):
         data = file.file.read()
-        await self.storage.upload(settings.S3_USER_FILES_BUCKET, "300904/my_project/" + file.filename, data)
+        await self.storage.upload(settings.S3_USER_FILES_BUCKET, directory + "/" + file.filename, data)
+        await self.cache.delete("functions:" + directory + "/" + file.filename)
 
     async def download(self, filename: str):
         if await self.storage.exists(settings.S3_USER_FILES_BUCKET, filename):

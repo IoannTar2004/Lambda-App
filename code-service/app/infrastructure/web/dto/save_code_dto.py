@@ -2,5 +2,5 @@ from pydantic import BaseModel
 
 
 class SaveCodeDto(BaseModel):
-    filename: str
+    path: str
     code: str

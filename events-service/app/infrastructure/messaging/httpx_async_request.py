@@ -5,7 +5,6 @@ import httpx
 from application.ports.async_request import AsyncRequest
 from infrastructure.config.consul import get_service_url
 
-
 class HttpxAsyncRequest(AsyncRequest):
 
     async def get(self, endpoint: str | None, service_name: str | None, params: dict) -> dict:

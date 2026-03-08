@@ -1,16 +1,26 @@
 from fastapi import APIRouter
 from fastapi import Request
 
+from application.commands.deploy_function_command import DeployFunctionCommand
+from application.ports.db_transaction import DBTransaction
+from application.usecase.deploy_function_usecase import DeployFunctionUseCase
 from application.usecase.functions_list_usecase import FunctionsListUseCase
 from infrastructure.cache.redis import RedisClient
-from infrastructure.config.consul import get_service_url
+from infrastructure.database.database import SqlAlchemyDBTransaction
 from infrastructure.messaging.httpx_async_request import HttpxAsyncRequest
+from infrastructure.web.dto.deploy_function_dto import DeployFunctionDTO
 
 router = APIRouter(prefix="/api/events", tags=["Events Controller"])
 
 
 @router.get("/functions-list")
 async def functions_list(path: str, request: Request):
-    redis_client = RedisClient(request.app.state.redis)
-    res = await FunctionsListUseCase(redis_client, HttpxAsyncRequest()).execute(path)
-    return res
+    redis_client = RedisClient(request.app.state.cache)
+    return await FunctionsListUseCase(redis_client, HttpxAsyncRequest()).execute(path)
+
+@router.post("/deploy-function")
+async def deploy_function(data: DeployFunctionDTO, request: Request):
+    deploy_function_command = DeployFunctionCommand(**data.model_dump())
+    await DeployFunctionUseCase(HttpxAsyncRequest(), SqlAlchemyDBTransaction()).execute(deploy_function_command)
+
+    return {"status": "ok"}
