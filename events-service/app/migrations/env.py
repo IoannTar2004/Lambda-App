@@ -11,7 +11,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from infrastructure.database.database import db_url, Base
+from infrastructure.database.base import Base
+from infrastructure.database.engine import db_url
 
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))

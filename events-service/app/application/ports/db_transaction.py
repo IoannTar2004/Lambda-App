@@ -12,18 +12,18 @@ class DBTransaction(ABC):
         pass
 
     @abstractmethod
-    async def get(self, model_class, model_id):
+    async def get(self, domain_class, model_id):
         pass
 
     @abstractmethod
-    def add(self, model):
+    async def insert(self, domain):
         pass
 
     @abstractmethod
-    async def refresh(self, model):
+    async def update(self, domain):
         pass
 
     @abstractmethod
-    def delete(self, model):
+    def delete(self, domain):
         pass
 

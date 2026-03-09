@@ -1,0 +1,52 @@
+from dataclasses import asdict
+
+from sqlalchemy import update
+from sqlalchemy.ext.asyncio import async_sessionmaker
+
+from application.ports.db_transaction import DBTransaction
+from infrastructure.database.engine import async_engine
+from infrastructure.database.domain_model_mapper import DOMAIN_MODEL_MAPPING, model_to_domain, domain_to_model
+
+
+class SqlAlchemyDBTransaction(DBTransaction):
+    async_session = async_sessionmaker(async_engine)
+
+    async def __aenter__(self) -> "SqlAlchemyDBTransaction":
+        self.session = SqlAlchemyDBTransaction.async_session()
+        await self.session.begin()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        try:
+            if exc_type:
+                await self.session.rollback()
+            else:
+                await self.session.commit()
+        finally:
+            await self.session.close()
+
+    async def get(self, domain_class, model_id):
+        model_class = DOMAIN_MODEL_MAPPING[domain_class]
+        res = await self.session.get(model_class, model_id)
+        return model_to_domain(res) if res else None
+
+    async def insert(self, domain):
+        model = domain_to_model(domain)
+        self.session.add(model)
+        await self.session.flush()
+        return model_to_domain(model)
+
+    async def update(self, domain):
+        model_class = DOMAIN_MODEL_MAPPING[type(domain)]
+        data = asdict(domain)
+        await self.session.execute(
+            update(model_class)
+            .where(model_class.id == domain.id)
+            .values(**data)
+        )
+
+        await self.session.flush()
+
+    def delete(self, domain):
+        model = domain_to_model(domain)
+        self.session.delete(model)

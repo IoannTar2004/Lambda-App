@@ -1,8 +1,8 @@
 """init
 
-Revision ID: d0462b5420b9
+Revision ID: 74121b281ba1
 Revises: 
-Create Date: 2026-03-08 13:56:31.360233
+Create Date: 2026-03-09 19:49:26.898001
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd0462b5420b9'
+revision: str = '74121b281ba1'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,17 +24,19 @@ def upgrade() -> None:
     op.create_table('function_headers',
     sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(), nullable=False),
+    sa.Column('project_name', sa.String(), nullable=False),
     sa.Column('current_version_number', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.BigInteger(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('function_configs',
     sa.Column('id', sa.BigInteger(), nullable=False),
+    sa.Column('function_id', sa.BigInteger(), nullable=False),
     sa.Column('version_number', sa.Integer(), nullable=False),
     sa.Column('handler', sa.String(), nullable=False),
     sa.Column('memory_size', sa.Integer(), nullable=False),
     sa.Column('timeout', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['id'], ['function_headers.id'], ),
+    sa.ForeignKeyConstraint(['function_id'], ['function_headers.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
