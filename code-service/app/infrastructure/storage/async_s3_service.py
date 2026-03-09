@@ -5,11 +5,11 @@ import aioboto3
 from botocore.exceptions import ClientError
 from fastapi import HTTPException
 
-from application.ports.async_storage import AsyncStorage
+from application.ports.storage import Storage
 from settings import settings
 
 
-class AsyncS3Service(AsyncStorage):
+class S3Service(Storage):
 
     def __init__(self, url, access_key, secret_key) -> None:
         self.url = url
@@ -61,5 +61,10 @@ class AsyncS3Service(AsyncStorage):
             files = response["Contents"] if "Contents" in response else []
             directories = response["CommonPrefixes"] if "CommonPrefixes" in response else []
             return directories, files
+
+    async def recursive_listdir(self, bucket: str | None, path: str) -> list[Any]:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            res = await s3_client.list_objects(Bucket=bucket, Prefix=path)
+            return res["Contents"] if "Contents" in res else []
 
 

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import AsyncGenerator, Any
 
 
-class AsyncStorage(ABC):
+class Storage(ABC):
 
     @abstractmethod
     async def upload(self, bucket: str | None, path: str, data: bytes) -> None:
@@ -22,4 +22,8 @@ class AsyncStorage(ABC):
 
     @abstractmethod
     async def listdir(self, bucket: str | None, path: str) -> tuple[list[Any], list[Any]]:
+        pass
+
+    @abstractmethod
+    async def recursive_listdir(self, bucket: str | None, path: str) -> list[str]:
         pass

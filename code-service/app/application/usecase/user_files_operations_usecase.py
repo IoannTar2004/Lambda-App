@@ -3,14 +3,14 @@ from pathlib import Path
 
 from fastapi import UploadFile, HTTPException
 
-from application.ports.async_storage import AsyncStorage
+from application.ports.storage import Storage
 from application.ports.cache import Cache
-from application.usecase.dto.listdir_dto import ListdirDto
+from infrastructure.web.dto.listdir_dto import ListdirDto
 from settings import settings
 
 
 class UserFilesOperationsUseCase:
-    def __init__(self, storage: AsyncStorage, cache: Cache=None):
+    def __init__(self, storage: Storage, cache: Cache=None):
         self.storage = storage
         self.cache = cache
 

@@ -1,11 +1,11 @@
-from application.ports.async_storage import AsyncStorage
+from application.ports.storage import Storage
 from application.ports.cache import Cache
 from settings import settings
 
 
 class SaveCodeUseCase:
 
-    def __init__(self, storage: AsyncStorage, cache: Cache) -> None:
+    def __init__(self, storage: Storage, cache: Cache) -> None:
         self.storage = storage
         self.cache = cache
 

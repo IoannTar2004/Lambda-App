@@ -7,10 +7,10 @@ from application.usecase.save_code_usecase import SaveCodeUseCase
 from application.usecase.user_files_operations_usecase import UserFilesOperationsUseCase
 from infrastructure.web.dto.save_code_dto import SaveCodeDto
 
-router = APIRouter(prefix="/api/code", tags=["File Controller"])
+file_router = APIRouter(prefix="/api/code", tags=["File Controller"])
 
 
-@router.post("/save-code")
+@file_router.post("/save-code")
 async def save_code(data: SaveCodeDto, request: Request):
     """
     upload plain text code
@@ -21,13 +21,13 @@ async def save_code(data: SaveCodeDto, request: Request):
     await save_code_usecase.save(data.path, data.code)
     return {"ok": True}
 
-@router.post("/upload-file")
+@file_router.post("/upload-file")
 async def upload_file(file: UploadFile, directory: str, request: Request):
     user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage, request.app.state.cache)
     await user_files_operations_usecase.upload(file, directory)
     return {"ok": True}
 
-@router.get("/download-file")
+@file_router.get("/download-file")
 async def download_file(path: str, request: Request):
     user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage)
     file = await user_files_operations_usecase.download(path)
@@ -36,7 +36,7 @@ async def download_file(path: str, request: Request):
                                  "Content-Disposition": f'attachment; filename="{os.path.basename(path)}"'
                              })
 
-@router.get("/listdir")
+@file_router.get("/listdir")
 async def listdir(path: str, request: Request):
     user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage)
     files = await user_files_operations_usecase.listdir(path)
