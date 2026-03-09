@@ -1,11 +1,9 @@
 from pydantic import BaseModel, Field, ConfigDict
 
 
-class DeployFunctionDTO(BaseModel):
+class UpdateFunctionDTO(BaseModel):
 
-    id: int = Field(default=None, ge=0, description='id of function')
-    function_name: str = Field(max_length=128, description='name of function')
-    project_name: str = Field(max_length=128, description='name of project')
+    id: int = Field(ge=0, description='id of function')
     handler: str = Field(max_length=128, description='path of handler')
     memory_size: int = Field(le=2048, description='memory_size of container')
     timeout: int = Field(le=300, description='max time in seconds')

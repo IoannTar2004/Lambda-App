@@ -1,6 +1,6 @@
 from dataclasses import asdict
 
-from sqlalchemy import update
+from sqlalchemy import update, select, delete
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from application.ports.db_transaction import DBTransaction
@@ -25,10 +25,19 @@ class SqlAlchemyDBTransaction(DBTransaction):
         finally:
             await self.session.close()
 
-    async def get(self, domain_class, model_id):
+    async def get_by_id(self, domain_class, model_id):
         model_class = DOMAIN_MODEL_MAPPING[domain_class]
         res = await self.session.get(model_class, model_id)
         return model_to_domain(res) if res else None
+
+    async def get(self, domain_class, **kwargs):
+        model_class = DOMAIN_MODEL_MAPPING[domain_class]
+        filters = [getattr(model_class, k) == v for k, v in kwargs.items()]
+        result = await self.session.execute(
+            select(model_class).where(*filters)
+        )
+
+        return [model_to_domain(res_domain) for res_domain in result.scalars().all()] if result else None
 
     async def insert(self, domain):
         model = domain_to_model(domain)
@@ -45,8 +54,8 @@ class SqlAlchemyDBTransaction(DBTransaction):
             .values(**data)
         )
 
-        await self.session.flush()
-
-    def delete(self, domain):
-        model = domain_to_model(domain)
-        self.session.delete(model)
+    async def delete(self, domain):
+        model_class = DOMAIN_MODEL_MAPPING[type(domain)]
+        await self.session.execute(
+            delete(model_class).where(model_class.id == domain.id)
+        )

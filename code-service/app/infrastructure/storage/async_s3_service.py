@@ -42,10 +42,10 @@ class S3Service(Storage):
 
                 yield chunk
 
-    async def remove(self, bucket: str | None, path: str) -> None:
+    async def delete(self, bucket: str | None, path: str) -> None:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
-            await s3_client.remove_object(bucket_name=bucket,
-                                          object_name=path)
+            await s3_client.delete_object(Bucket=bucket,
+                                          Key=path)
 
     async def exists(self, bucket: str | None, path: str) -> bool:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:

@@ -31,3 +31,10 @@ class HttpxAsyncRequest(AsyncRequest):
             response = await client.post(url, json=params)
             response.raise_for_status()
             return response.json()
+
+    async def delete(self, endpoint: str | None, service_name: str | None, body: dict) -> Any:
+        url = await get_service_url(service_name) + endpoint
+        async with httpx.AsyncClient() as client:
+            response = await client.request("DELETE", url, json=body)
+            response.raise_for_status()
+            return response.json()

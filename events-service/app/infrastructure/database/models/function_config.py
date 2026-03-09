@@ -16,6 +16,3 @@ class FunctionConfigModel(Base):
     handler: Mapped[str] = mapped_column(nullable=False)
     memory_size: Mapped[int] = mapped_column(nullable=False)
     timeout: Mapped[int] = mapped_column(nullable=False)
-
-    header: Mapped[FunctionHeaderModel] = relationship(back_populates="config")
-    

@@ -34,3 +34,6 @@ class UserFilesOperationsUseCase:
                 "size": int(file["Size"]),
             } for file in files]
         )
+
+    async def delete(self, path: str):
+        await self.storage.delete(settings.S3_USER_FILES_BUCKET, path)

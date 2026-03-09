@@ -14,7 +14,3 @@ class FunctionHeaderModel(Base):
     project_name: Mapped[str] = mapped_column(nullable=False)
     current_version_number: Mapped[int] = mapped_column(nullable=False)
     user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-
-    config: Mapped["FunctionConfigModel"] = relationship(
-                                                          back_populates="header",
-                                                          cascade="all, delete-orphan")

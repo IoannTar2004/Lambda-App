@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Request
 
+from application.usecase.commands.delete_version_command import DeleteVersionCommand
 from application.usecase.commands.zip_project_command import ZipProjectCommand
+from application.usecase.delete_version_usecase import DeleteVersionUsecase
+from infrastructure.web.dto.delete_version_dto import DeleteVersionDto
 from infrastructure.web.dto.zip_project_dto import ZipProjectDto
 from application.usecase.zip_project_usecase import ZipProjectUsecase
 from infrastructure.web.mappers.dto_command_mapper import to_command
@@ -13,4 +16,12 @@ async def zip_project(data: ZipProjectDto, request: Request):
     zip_project_usecase = ZipProjectUsecase(storage)
     await zip_project_usecase.execute(to_command(ZipProjectCommand, data))
 
-    return {"status": "ok"}
+    return {"success": True}
+
+@zip_router.delete("/delete-version")
+async def delete_version(data: DeleteVersionDto, request: Request):
+    storage = request.app.state.storage
+    delete_version_usecase = DeleteVersionUsecase(storage)
+    await delete_version_usecase.execute(to_command(DeleteVersionCommand, data))
+
+    return {"success": True}

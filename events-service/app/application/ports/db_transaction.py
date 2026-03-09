@@ -12,7 +12,11 @@ class DBTransaction(ABC):
         pass
 
     @abstractmethod
-    async def get(self, domain_class, model_id):
+    async def get_by_id(self, domain_class, model_id):
+        pass
+
+    @abstractmethod
+    async def get(self, domain, **kwargs):
         pass
 
     @abstractmethod
@@ -24,6 +28,6 @@ class DBTransaction(ABC):
         pass
 
     @abstractmethod
-    def delete(self, domain):
+    async def delete(self, domain):
         pass
 

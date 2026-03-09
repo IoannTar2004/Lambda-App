@@ -19,13 +19,13 @@ async def save_code(data: SaveCodeDto, request: Request):
     """
     save_code_usecase = SaveCodeUseCase(request.app.state.storage, request.app.state.cache)
     await save_code_usecase.save(data.path, data.code)
-    return {"ok": True}
+    return {"success": True}
 
 @file_router.post("/upload-file")
 async def upload_file(file: UploadFile, directory: str, request: Request):
     user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage, request.app.state.cache)
     await user_files_operations_usecase.upload(file, directory)
-    return {"ok": True}
+    return {"success": True}
 
 @file_router.get("/download-file")
 async def download_file(path: str, request: Request):
@@ -41,3 +41,9 @@ async def listdir(path: str, request: Request):
     user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage)
     files = await user_files_operations_usecase.listdir(path)
     return files
+
+@file_router.delete("/delete-file")
+async def delete_file(path: str, request: Request):
+    user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage)
+    await user_files_operations_usecase.delete(path)
+    return {"success": True}

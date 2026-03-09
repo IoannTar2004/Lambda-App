@@ -10,7 +10,7 @@ class RedisClient(Cache):
         await self.client.set(key, value, ex=ex)
 
     async def get(self, key: str) -> str:
-        res = await self.client.get(key)
+        res = await self.client.get_by_id(key)
         return res
 
     async def delete(self, key: str) -> None:
