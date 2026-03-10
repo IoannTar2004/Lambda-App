@@ -1,13 +1,15 @@
 import os.path
+from typing import cast
 
 from fastapi import APIRouter, UploadFile, Request
+from mypy_boto3_s3 import S3Client
 from starlette.responses import StreamingResponse
 
 from application.usecase.save_code_usecase import SaveCodeUseCase
 from application.usecase.user_files_operations_usecase import UserFilesOperationsUseCase
-from infrastructure.web.dto.save_code_dto import SaveCodeDto
+from infrastructure.web.dto.user_files.save_code_dto import SaveCodeDto
 
-file_router = APIRouter(prefix="/api/code", tags=["File Controller"])
+file_router = APIRouter(prefix="/api/code", tags=["User files"])
 
 
 @file_router.post("/save-code")

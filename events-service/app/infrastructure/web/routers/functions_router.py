@@ -1,3 +1,4 @@
+import json
 from typing import Annotated
 from venv import create
 
@@ -17,7 +18,7 @@ from infrastructure.messaging.httpx_async_request import HttpxAsyncRequest
 from infrastructure.web.dto.create_function_dto import CreateFunctionDTO
 from infrastructure.web.dto.update_function_dto import UpdateFunctionDTO
 
-router = APIRouter(prefix="/api/events", tags=["Events Controller"])
+router = APIRouter(prefix="/api/events", tags=["Functions Controller"])
 
 
 @router.get("/functions-list")
@@ -53,4 +54,10 @@ async def delete_function(function_id: Annotated[int, Field(ge=0)]):
     db_transaction = SqlAlchemyDBTransaction()
     await DeleteFunctionUsecase(async_req, db_transaction).execute(function_id)
 
+    return {"success": True}
+
+@router.post("/test")
+async def test(request: Request):
+    body = await request.json()
+    print(json.dumps(body, indent=4))
     return {"success": True}

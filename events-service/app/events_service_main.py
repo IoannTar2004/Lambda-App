@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from infrastructure.config.consul import service_register, service_unregister
-from infrastructure.web.routers.events_router import router
+from infrastructure.web.routers.functions_router import router
 from settings import settings
 
 load_dotenv(settings.Config.env_file)

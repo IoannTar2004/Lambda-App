@@ -8,7 +8,8 @@ from fastapi import FastAPI
 
 from infrastructure.config.consul import service_register, service_unregister
 from infrastructure.storage.async_s3_service import S3Service
-from infrastructure.web.routers.file_router import file_router
+from infrastructure.web.routers.events_router import events_router
+from infrastructure.web.routers.user_files_router import file_router
 from infrastructure.web.routers.zip_router import zip_router
 
 from settings import settings
@@ -27,6 +28,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(file_router)
 app.include_router(zip_router)
+app.include_router(events_router)
 
 @app.get("/health")
 async def health():

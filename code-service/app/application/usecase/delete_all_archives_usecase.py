@@ -17,5 +17,4 @@ class DeleteAllArchivesUsecase:
             raise HTTPException(status_code=404, detail="No files found.")
 
         keys = [{"Key": key["Key"]} for key in files]
-        print(keys)
         await self.storage.delete_objects(settings.S3_CODE_ARCHIVES_BUCKET, keys)

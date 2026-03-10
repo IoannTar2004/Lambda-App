@@ -1,9 +1,10 @@
 import io
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, cast
 
 import aioboto3
 from botocore.exceptions import ClientError
 from fastapi import HTTPException
+from mypy_boto3_s3 import S3Client
 
 from application.ports.storage import Storage
 from settings import settings
@@ -13,7 +14,7 @@ class S3Service(Storage):
 
     def __init__(self, url, access_key, secret_key) -> None:
         self.url = url
-        self.session = aioboto3.Session(
+        self.session: aioboto3.Session = aioboto3.Session(
             aws_access_key_id=access_key,
             aws_secret_access_key=secret_key
         )
@@ -27,8 +28,8 @@ class S3Service(Storage):
 
     async def download(self, bucket: str | None, path: str) -> AsyncGenerator[bytes, Any]:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            s3_client = cast(S3Client, s3_client)
             response = await s3_client.get_object(Bucket=bucket, Key=path)
-
             chunk_size = 1024 * 1024
             total_size = 0
 
