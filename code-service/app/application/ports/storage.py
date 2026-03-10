@@ -31,3 +31,14 @@ class Storage(ABC):
     @abstractmethod
     async def recursive_listdir(self, bucket: str | None, path: str) -> list[str]:
         pass
+
+
+class StorageNotification(ABC):
+
+    @abstractmethod
+    async def add_notification(self, id: int, bucket: str, events: list[str], prefix: str = None, suffix: str = None):
+        pass
+
+    @abstractmethod
+    async def remove_notification(self, id: int, bucket: str):
+        pass
