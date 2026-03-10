@@ -15,7 +15,7 @@ class UpdateFunctionUseCase:
 
     async def execute(self, data: UpdateFunctionCommand):
         async with self.db_transaction as tx:
-            function_header: FunctionHeader = await tx.get_by_id(FunctionHeader, data.id)
+            function_header: FunctionHeader = await tx.get(FunctionHeader, data.id)
             if not function_header:
                 raise HTTPException(status_code=404, detail="Function doesn't exist")
 

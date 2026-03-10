@@ -7,6 +7,7 @@ from pydantic import Field
 from application.commands.create_function_command import CreateFunctionCommand
 from application.commands.update_function_command import UpdateFunctionCommand
 from application.usecase.create_function_usecase import CreateFunctionUseCase
+from application.usecase.delete_function_usecase import DeleteFunctionUsecase
 from application.usecase.update_function_usecase import UpdateFunctionUseCase
 from application.usecase.functions_list_usecase import FunctionsListUseCase
 from application.usecase.rollback_function_usecase import RollbackFunctionUsecase
@@ -46,10 +47,10 @@ async def rollback_function(function_id: Annotated[int, Field(ge=0)]):
 
     return {"success": True}
 
-@router.delete("delete-function")
+@router.delete("/delete-function")
 async def delete_function(function_id: Annotated[int, Field(ge=0)]):
     async_req = HttpxAsyncRequest()
     db_transaction = SqlAlchemyDBTransaction()
-    await RollbackFunctionUsecase(async_req, db_transaction).execute(function_id)
+    await DeleteFunctionUsecase(async_req, db_transaction).execute(function_id)
 
     return {"success": True}

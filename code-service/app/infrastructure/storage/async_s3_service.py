@@ -47,6 +47,10 @@ class S3Service(Storage):
             await s3_client.delete_object(Bucket=bucket,
                                           Key=path)
 
+    async def delete_objects(self, bucket: str | None, list_object: list[str]) -> None:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            await s3_client.delete_objects(Bucket=bucket, Delete={"Objects": list_object})
+
     async def exists(self, bucket: str | None, path: str) -> bool:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
             try:

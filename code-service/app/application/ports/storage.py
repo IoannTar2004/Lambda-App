@@ -17,6 +17,10 @@ class Storage(ABC):
         pass
 
     @abstractmethod
+    async def delete_objects(self, bucket: str | None, list_object: list) -> None:
+        pass
+
+    @abstractmethod
     async def exists(self, bucket: str | None, path: str) -> bool:
         pass
 

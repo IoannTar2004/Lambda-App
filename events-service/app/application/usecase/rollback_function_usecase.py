@@ -14,15 +14,15 @@ class RollbackFunctionUsecase:
 
     async def execute(self, function_id: int):
         async with self.db_transaction as tx:
-            function_header: FunctionHeader = await tx.get_by_id(FunctionHeader, function_id)
+            function_header: FunctionHeader = await tx.get(FunctionHeader, function_id)
             if not function_header:
                 raise HTTPException(status_code=404, detail="Function does not exist")
             if function_header.current_version_number == 1:
                 raise HTTPException(status_code=409, detail="Cannot rollback. Version number is 1")
 
-            config = await tx.get(FunctionConfig,
-                                  function_id=function_id,
-                                  version_number=function_header.current_version_number)
+            config = await tx.get_by_filters(FunctionConfig,
+                                             function_id=function_id,
+                                             version_number=function_header.current_version_number)
 
             await tx.delete(config[0])
             prev_version_number = function_header.current_version_number
@@ -33,4 +33,4 @@ class RollbackFunctionUsecase:
                 "user_id": function_header.user_id,
                 "function_name": function_header.name,
                 "version_number": prev_version_number,
-            })
+            }) # TODO заменить на kafka

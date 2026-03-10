@@ -25,12 +25,12 @@ class SqlAlchemyDBTransaction(DBTransaction):
         finally:
             await self.session.close()
 
-    async def get_by_id(self, domain_class, model_id):
+    async def get(self, domain_class, model_id):
         model_class = DOMAIN_MODEL_MAPPING[domain_class]
         res = await self.session.get(model_class, model_id)
         return model_to_domain(res) if res else None
 
-    async def get(self, domain_class, **kwargs):
+    async def get_by_filters(self, domain_class, **kwargs):
         model_class = DOMAIN_MODEL_MAPPING[domain_class]
         filters = [getattr(model_class, k) == v for k, v in kwargs.items()]
         result = await self.session.execute(
@@ -58,4 +58,11 @@ class SqlAlchemyDBTransaction(DBTransaction):
         model_class = DOMAIN_MODEL_MAPPING[type(domain)]
         await self.session.execute(
             delete(model_class).where(model_class.id == domain.id)
+        )
+
+    async def delete_by_filters(self, domain_class, **kwargs):
+        model_class = DOMAIN_MODEL_MAPPING[domain_class]
+        filters = [getattr(model_class, k) == v for k, v in kwargs.items()]
+        await self.session.execute(
+            delete(model_class).where(*filters)
         )
