@@ -2,4 +2,5 @@
 **/.idea
 **/lambda_app.iml
 **/__pycache__/
-code-service/.env.local
+*/.env.*
+code-archives

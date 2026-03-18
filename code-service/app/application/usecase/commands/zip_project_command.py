@@ -1,0 +1,9 @@
+from dataclasses import dataclass
+
+
+@dataclass
+class ZipProjectCommand:
+    user_id: int
+    project_name: str
+    function_name: str
+    version_number: int

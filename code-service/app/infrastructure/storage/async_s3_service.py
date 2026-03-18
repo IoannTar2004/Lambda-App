@@ -1,18 +1,20 @@
 import io
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, cast
 
 import aioboto3
+from botocore.exceptions import ClientError
 from fastapi import HTTPException
+from mypy_boto3_s3 import S3Client
 
-from application.ports.async_storage import AsyncStorage
+from application.ports.storage import Storage, StorageNotification
 from settings import settings
 
 
-class AsyncS3Service(AsyncStorage):
+class S3Service(Storage):
 
     def __init__(self, url, access_key, secret_key) -> None:
         self.url = url
-        self.session = aioboto3.Session(
+        self.session: aioboto3.Session = aioboto3.Session(
             aws_access_key_id=access_key,
             aws_secret_access_key=secret_key
         )
@@ -26,6 +28,7 @@ class AsyncS3Service(AsyncStorage):
 
     async def download(self, bucket: str | None, path: str) -> AsyncGenerator[bytes, Any]:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            s3_client = cast(S3Client, s3_client)
             response = await s3_client.get_object(Bucket=bucket, Key=path)
             chunk_size = 1024 * 1024
             total_size = 0
@@ -40,10 +43,22 @@ class AsyncS3Service(AsyncStorage):
 
                 yield chunk
 
-    async def remove(self, bucket: str | None, path: str) -> None:
+    async def delete(self, bucket: str | None, path: str) -> None:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
-            await s3_client.remove_object(bucket_name=bucket,
-                                          object_name=path)
+            await s3_client.delete_object(Bucket=bucket,
+                                          Key=path)
+
+    async def delete_objects(self, bucket: str | None, list_object: list[str]) -> None:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            await s3_client.delete_objects(Bucket=bucket, Delete={"Objects": list_object})
+
+    async def exists(self, bucket: str | None, path: str) -> bool:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            try:
+                await s3_client.head_object(Bucket=bucket, Key=path)
+                return True
+            except ClientError:
+                return False
 
     async def listdir(self, bucket: str | None, path: str) -> tuple[list[Any], list[Any]]:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
@@ -52,4 +67,49 @@ class AsyncS3Service(AsyncStorage):
             directories = response["CommonPrefixes"] if "CommonPrefixes" in response else []
             return directories, files
 
+    async def recursive_listdir(self, bucket: str | None, path: str) -> list[Any]:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+            res = await s3_client.list_objects(Bucket=bucket, Prefix=path)
+            return res["Contents"] if "Contents" in res else []
 
+
+class AsyncS3NotificationService(StorageNotification):
+
+    def __init__(self, storage: S3Service):
+        self.storage = storage
+
+
+    async def add_notification(self, id: str, bucket: str, events: list[str], prefix: str = None, suffix: str = None):
+        async with self.storage.session.client("s3", endpoint_url=self.storage.url) as s3_client:
+            s3_client = cast(S3Client, s3_client)
+            configurations: dict = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
+            configurations.pop("ResponseMetadata")
+            queue_configurations = configurations.get("QueueConfigurations", [])
+            queue_configurations.append({
+                "Id": id,
+                "QueueArn": "arn:minio:sqs::1:webhook",
+                "Events": events,
+                "Filter": {
+                    "Key": {
+                        "FilterRules": [
+                            {"Name": "prefix",
+                             "Value": prefix},
+                            {"Name": "suffix",
+                             "Value": suffix}
+                        ]
+                    }
+                }
+            })
+            configurations["QueueConfigurations"] = queue_configurations
+
+            await s3_client.put_bucket_notification_configuration(Bucket=bucket,
+                                                                  NotificationConfiguration=configurations)
+
+    async def remove_notification(self, id: str, bucket: str):
+        async with self.storage.session.client("s3", endpoint_url=self.storage.url) as s3_client:
+            s3_client = cast(S3Client, s3_client)
+            configurations = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
+            configurations.pop("ResponseMetadata")
+            configurations["QueueConfigurations"] = [q for q in configurations["QueueConfigurations"] if q["Id"] != id]
+            await s3_client.put_bucket_notification_configuration(Bucket=bucket,
+                                                                  NotificationConfiguration=configurations)
