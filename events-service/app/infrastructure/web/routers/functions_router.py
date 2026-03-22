@@ -1,63 +1,34 @@
-import json
 from typing import Annotated
-from venv import create
 
 from fastapi import APIRouter, Request
 from pydantic import Field
 
-from application.commands.create_function_command import CreateFunctionCommand
-from application.commands.update_function_command import UpdateFunctionCommand
-from application.usecase.create_function_usecase import CreateFunctionUseCase
-from application.usecase.delete_function_usecase import DeleteFunctionUsecase
-from application.usecase.update_function_usecase import UpdateFunctionUseCase
-from application.usecase.functions_list_usecase import FunctionsListUseCase
-from application.usecase.rollback_function_usecase import RollbackFunctionUsecase
+from application.commands.create_s3_function_command import CreateS3FunctionCommand
+from application.usecase.functions.create_function_usecase import CreateFunctionUseCase
+from application.usecase.functions.delete_function_usecase import DeleteFunctionUsecase
+from application.usecase.functions.functions_list_usecase import FunctionsListUseCase
+from application.usecase.specific_functions.s3_function_usecase import S3FunctionUsecase
 from infrastructure.cache.redis import RedisClient
 from infrastructure.database.sqlalchemy_db_transaction import SqlAlchemyDBTransaction
 from infrastructure.messaging.httpx_async_request import HttpxAsyncRequest
-from infrastructure.web.dto.create_function_dto import CreateFunctionDTO
-from infrastructure.web.dto.update_function_dto import UpdateFunctionDTO
+from infrastructure.web.dto.create_s3_function_dto import CreateS3FunctionDTO
 
-router = APIRouter(prefix="/api/events", tags=["Functions Controller"])
+functions_router = APIRouter(prefix="/api/functions", tags=["Functions Controller"])
 
 
-@router.get("/functions-list")
-async def functions_list(path: str, request: Request):
+@functions_router.get("/list")
+async def list(path: str, request: Request):
     redis_client = RedisClient(request.app.state.cache)
     return await FunctionsListUseCase(redis_client, HttpxAsyncRequest()).execute(path)
 
-@router.post("/create-function")
-async def create_function(data: CreateFunctionDTO):
-    create_function_command = CreateFunctionCommand(**data.model_dump())
-    async_req = HttpxAsyncRequest()
-    db_transaction = SqlAlchemyDBTransaction()
-    return await CreateFunctionUseCase(async_req, db_transaction).execute(create_function_command)
+@functions_router.post("/create-s3")
+async def create_s3_function(data: CreateS3FunctionDTO):
+    create_s3_function_command = CreateS3FunctionCommand(**data.model_dump())
+    return await (CreateFunctionUseCase(HttpxAsyncRequest(), SqlAlchemyDBTransaction(), S3FunctionUsecase())
+                  .execute(300904, create_s3_function_command))
 
-@router.put("/update-function")
-async def update_function(data: UpdateFunctionDTO):
-    update_function_command = UpdateFunctionCommand(**data.model_dump())
-    async_req = HttpxAsyncRequest()
-    db_transaction = SqlAlchemyDBTransaction()
-    return await UpdateFunctionUseCase(async_req, db_transaction).execute(update_function_command)
+@functions_router.delete("/delete-s3")
+async def delete_function(function_id: Annotated[int, Field(ge=1)]):
+    await DeleteFunctionUsecase(HttpxAsyncRequest(), SqlAlchemyDBTransaction(), S3FunctionUsecase()).execute(function_id)
 
-@router.delete("/rollback-function")
-async def rollback_function(function_id: Annotated[int, Field(ge=0)]):
-    async_req = HttpxAsyncRequest()
-    db_transaction = SqlAlchemyDBTransaction()
-    await RollbackFunctionUsecase(async_req, db_transaction).execute(function_id)
-
-    return {"success": True}
-
-@router.delete("/delete-function")
-async def delete_function(function_id: Annotated[int, Field(ge=0)]):
-    async_req = HttpxAsyncRequest()
-    db_transaction = SqlAlchemyDBTransaction()
-    await DeleteFunctionUsecase(async_req, db_transaction).execute(function_id)
-
-    return {"success": True}
-
-@router.post("/test")
-async def test(request: Request):
-    body = await request.json()
-    print(json.dumps(body, indent=4))
     return {"success": True}

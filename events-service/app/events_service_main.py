@@ -4,9 +4,13 @@ import redis.asyncio as redis
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from faststream import FastStream
 
 from infrastructure.config.consul import service_register, service_unregister
-from infrastructure.web.routers.functions_router import router
+from infrastructure.messaging.kafka.kafka import Kafka
+from infrastructure.web.routers.events_router import events_router
+from infrastructure.web.routers.functions_router import functions_router
+from infrastructure.web.routers.project_router import project_router
 from settings import settings
 
 load_dotenv(settings.Config.env_file)
@@ -15,13 +19,22 @@ load_dotenv(settings.Config.env_file)
 async def lifespan(app: FastAPI):
     app.state.cache = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
     await service_register()
+    kafka = Kafka(settings.KAFKA_BOOTSTRAP_SERVERS)
+    fast_stream = FastStream(kafka.broker)
+    await fast_stream.start()
+    app.state.publisher = kafka
+
     yield
+
+    await fast_stream.stop()
     await service_unregister()
     await app.state.cache.close()
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(router)
+app.include_router(functions_router)
+app.include_router(events_router)
+app.include_router(project_router)
 
 
 @app.get("/health")

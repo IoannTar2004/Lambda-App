@@ -2,6 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class DeleteFunctionsCommand:
+class DeleteArchivesCommand:
     user_id: int
     function_name: str

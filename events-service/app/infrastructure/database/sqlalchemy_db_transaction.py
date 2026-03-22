@@ -1,6 +1,6 @@
 from dataclasses import asdict
 
-from sqlalchemy import update, select, delete
+from sqlalchemy import update, select, delete, inspect
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from application.ports.db_transaction import DBTransaction
@@ -33,7 +33,7 @@ class SqlAlchemyDBTransaction(DBTransaction):
     async def get_by_filters(self, domain_class, **kwargs):
         model_class = DOMAIN_MODEL_MAPPING[domain_class]
         filters = [getattr(model_class, k) == v for k, v in kwargs.items()]
-        result = await self.session.create(
+        result = await self.session.execute(
             select(model_class).where(*filters)
         )
 
@@ -48,7 +48,10 @@ class SqlAlchemyDBTransaction(DBTransaction):
     async def update(self, domain):
         model_class = DOMAIN_MODEL_MAPPING[type(domain)]
         data = asdict(domain)
-        await self.session.create(
+        data.pop("relations", None)
+        data.pop("id", None)
+
+        await self.session.execute(
             update(model_class)
             .where(model_class.id == domain.id)
             .values(**data)
@@ -56,13 +59,13 @@ class SqlAlchemyDBTransaction(DBTransaction):
 
     async def delete(self, domain):
         model_class = DOMAIN_MODEL_MAPPING[type(domain)]
-        await self.session.create(
+        await self.session.execute(
             delete(model_class).where(model_class.id == domain.id)
         )
 
     async def delete_by_filters(self, domain_class, **kwargs):
         model_class = DOMAIN_MODEL_MAPPING[domain_class]
         filters = [getattr(model_class, k) == v for k, v in kwargs.items()]
-        await self.session.create(
+        await self.session.execute(
             delete(model_class).where(*filters)
         )

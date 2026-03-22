@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 
 @dataclass
-class UpdateFunctionCommand:
+class UpdateProjectCommand:
     id: int
-    handler: str
+    fu: str
     memory_size: int
     timeout: int

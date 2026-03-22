@@ -7,9 +7,9 @@ from infrastructure.web.dto.events.create_s3_event_dto import CreateS3EventDto
 from infrastructure.web.dto.events.delete_s3_event_dto import DeleteS3EventDto
 from infrastructure.web.mappers.dto_command_mapper import to_command
 
-events_router = APIRouter(prefix="/api/events", tags=["Event configurations"])
+events_config_router = APIRouter(prefix="/api/events-config", tags=["Event configurations"])
 
-@events_router.post("/create-s3-event")
+@events_config_router.post("/create-s3-event")
 async def create_s3_event(data: CreateS3EventDto, request: Request):
     storage_notification = AsyncS3NotificationService(request.app.state.storage)
     create_s3_event_usecase = S3EventUsecase(storage_notification)
@@ -17,7 +17,7 @@ async def create_s3_event(data: CreateS3EventDto, request: Request):
 
     return {"success": True}
 
-@events_router.delete("/delete-s3-event")
+@events_config_router.delete("/delete-s3-event")
 async def delete_s3_event(data: DeleteS3EventDto, request: Request):
     storage_notification = AsyncS3NotificationService(request.app.state.storage)
     create_s3_event_usecase = S3EventUsecase(storage_notification)

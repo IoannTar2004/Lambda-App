@@ -81,7 +81,6 @@ class AsyncS3NotificationService(StorageNotification):
 
     async def add_notification(self, id: str, bucket: str, events: list[str], prefix: str = None, suffix: str = None):
         async with self.storage.session.client("s3", endpoint_url=self.storage.url) as s3_client:
-            s3_client = cast(S3Client, s3_client)
             configurations: dict = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
             configurations.pop("ResponseMetadata")
             queue_configurations = configurations.get("QueueConfigurations", [])
@@ -107,7 +106,6 @@ class AsyncS3NotificationService(StorageNotification):
 
     async def remove_notification(self, id: str, bucket: str):
         async with self.storage.session.client("s3", endpoint_url=self.storage.url) as s3_client:
-            s3_client = cast(S3Client, s3_client)
             configurations = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
             configurations.pop("ResponseMetadata")
             configurations["QueueConfigurations"] = [q for q in configurations["QueueConfigurations"] if q["Id"] != id]

@@ -25,10 +25,10 @@ class HttpxAsyncRequest(AsyncRequest):
                 async for chunk in response.aiter_bytes(chunk_size=chunk_size):
                     yield chunk
 
-    async def post(self, endpoint: str | None, service_name: str | None, params: dict) -> Any:
+    async def post(self, endpoint: str | None, service_name: str | None, body: dict) -> Any:
         url = await get_service_url(service_name) + endpoint
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=params)
+            response = await client.post(url, json=body)
             response.raise_for_status()
             return response.json()
 

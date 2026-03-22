@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
 
+    KAFKA_BOOTSTRAP_SERVERS: str
+
     class Config:
         env_file = Path(__file__).parent.parent / os.getenv("ENV_FILE", ".env")
 

@@ -1,2 +1,4 @@
-from .function_header import FunctionHeaderModel
-from .function_config import FunctionConfigModel
+from .function import FunctionModel
+from .project import ProjectModel
+from .s3_function import S3FunctionModel
+from .function_handler import FunctionHandlerModel

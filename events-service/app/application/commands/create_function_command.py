@@ -4,8 +4,10 @@ from dataclasses import dataclass
 @dataclass
 class CreateFunctionCommand:
 
+    name: str
+    project_id: int
+    language: str
+    function_path: str
     function_name: str
-    project_name: str
-    handler: str
     memory_size: int
     timeout: int
