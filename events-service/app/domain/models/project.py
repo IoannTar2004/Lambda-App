@@ -9,4 +9,4 @@ class Project:
     version_number: int
 
     id: int | None = None
-    relations : dict = field(default_factory=dict)
+    relations: dict = field(default_factory=dict)

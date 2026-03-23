@@ -16,6 +16,7 @@ class CreateProjectUsecase:
 
             await self.async_req.post("/api/zip/zip-project", "code-service", {
                 "user_id": project.user_id,
+                "project_id": project.id,
                 "project_name": project.project_name,
                 "version_number": project.version_number
             })  # TODO заменить все на Kafka

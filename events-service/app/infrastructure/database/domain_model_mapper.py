@@ -16,13 +16,25 @@ DOMAIN_MODEL_MAPPING = bidict({
     S3Function: S3FunctionModel
 })
 
-def model_to_domain(model):
+def model_to_domain(model, relations_to_extract: list[str] | None = None):
     domain_class = DOMAIN_MODEL_MAPPING.inverse[type(model)]
     data = {c.name: getattr(model, c.name) for c in model.__table__.columns}
-    return domain_class(**data)
+    domain_obj = domain_class(**data)
+    if relations_to_extract is not None:
+        for relation in relations_to_extract:
+            rel_value = getattr(model, relation)
+            if isinstance(rel_value, list):
+                domain_obj.relations[relation] = [model_to_domain(m) for m in rel_value]
+            else:
+                domain_obj.relations[relation] = model_to_domain(rel_value)
+
+    return domain_obj
 
 def domain_to_model(domain):
     model_class = DOMAIN_MODEL_MAPPING[type(domain)]
     data = asdict(domain)
     data.pop("relations", None)
+    print(f"Model class: {model_class.__name__}")
+    print(f"Data keys: {data.keys()}")
+    print(f"Model columns: {model_class.__table__.columns.keys()}")
     return model_class(**data)

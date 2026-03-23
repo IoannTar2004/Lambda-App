@@ -16,5 +16,5 @@ class FunctionHandlerModel(Base):
     memory_size: Mapped[int] = mapped_column(nullable=False)
     timeout: Mapped[int] = mapped_column(nullable=False)
 
-    function: Mapped["FunctionModel"] = relationship(back_populates="function_handlers")
+    function: Mapped["FunctionModel"] = relationship(back_populates="handler")
 

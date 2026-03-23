@@ -1,7 +1,8 @@
 from dataclasses import asdict
 
-from sqlalchemy import update, select, delete, inspect
+from sqlalchemy import update, select, delete, inspect, text
 from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.orm import selectinload, joinedload
 
 from application.ports.db_transaction import DBTransaction
 from infrastructure.database.engine import async_engine
@@ -30,14 +31,42 @@ class SqlAlchemyDBTransaction(DBTransaction):
         res = await self.session.get(model_class, model_id)
         return model_to_domain(res) if res else None
 
-    async def get_by_filters(self, domain_class, **kwargs):
+    async def get_by_filters(self, domain_class, _selections: list[str] | None = None,
+                             _joins: list[str] | None = None, **kwargs):
         model_class = DOMAIN_MODEL_MAPPING[domain_class]
-        filters = [getattr(model_class, k) == v for k, v in kwargs.items()]
+        filters = []
+        for k, v in kwargs.items():
+            column = getattr(model_class, k)
+
+            if isinstance(v, (list, tuple)):
+                if not v:
+                    filters.append(column is None)
+                    continue
+                filters.append(column.in_(v))
+            else:
+                filters.append(column == v)
+
+        options = []
+        requested_relations = []
+        if _selections:
+            options += [selectinload(getattr(model_class, name)) for name in _selections]
+            requested_relations += _selections
+        if _joins:
+            options += [joinedload(getattr(model_class, name)) for name in _joins]
+            requested_relations += _joins
+
         result = await self.session.execute(
-            select(model_class).where(*filters)
+            select(model_class).where(*filters).options(*options)
         )
 
-        return [model_to_domain(res_domain) for res_domain in result.scalars().all()] if result else None
+        return [model_to_domain(res_domain, requested_relations) for res_domain in result.scalars().unique().all()]
+
+    async def get_by_query(self, domain_class, sql: str, **kwargs):
+        model_class = DOMAIN_MODEL_MAPPING[domain_class]
+        query = select(model_class).from_statement(text(sql))
+        result = await self.session.execute(query, kwargs)
+
+        return [model_to_domain(res_domain) for res_domain in result.scalars().all()]
 
     async def insert(self, domain):
         model = domain_to_model(domain)

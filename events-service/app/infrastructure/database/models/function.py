@@ -21,6 +21,11 @@ class FunctionModel(Base):
     project_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('projects.id'))
     language: Mapped[LanguageEnum]
 
-    function_handlers: Mapped[list["FunctionHandlerModel"]] = relationship(back_populates="function",
-                                                                           cascade="all, delete-orphan")
+    handler: Mapped["FunctionHandlerModel"] = (
+        relationship(back_populates="function",
+                     cascade="all, delete-orphan",
+                     primaryjoin="""and_(
+                                    FunctionModel.id == FunctionHandlerModel.function_id,
+                                    FunctionModel.project_version == FunctionHandlerModel.project_version
+                                )"""))
     project: Mapped["ProjectModel"] = relationship(back_populates="functions")

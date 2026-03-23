@@ -16,8 +16,15 @@ class DBTransaction(ABC):
         pass
 
     @abstractmethod
-    async def get_by_filters(self, domain, **kwargs):
+    async def get_by_filters(self, domain, _selections: list[str] | None = None,
+                             _joins: list[str] | None = None, **kwargs):
         pass
+
+    @abstractmethod
+    async def get_by_query(self, domain_class, sql: str, **kwargs):
+        pass
+
+    @abstractmethod
 
     @abstractmethod
     async def insert(self, domain):
