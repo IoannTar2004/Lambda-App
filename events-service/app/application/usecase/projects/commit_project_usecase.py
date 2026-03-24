@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from application.commands.update_function_command import UpdateProjectCommand
 from application.ports.async_request import AsyncRequest
 from application.ports.db_transaction import DBTransaction
+from domain.models.function_handler import FunctionHandler
 from domain.models.project import Project
 from domain.models.function import Function
 
@@ -13,9 +14,9 @@ class CommitProjectUseCase:
         self.async_req = async_req
         self.db_transaction = db_transaction
 
-    async def execute(self, user_id: int, project_id: int):
+    async def execute(self, user_id: int, data: dict):
         async with self.db_transaction as tx:
-            project: Project = await tx.get(Project, project_id)
+            project: Project = await tx.get(Project, data["project_id"])
             if not project:
                 raise HTTPException(status_code=404, detail="Project doesn't exist")
             if project.user_id != user_id:
@@ -24,8 +25,28 @@ class CommitProjectUseCase:
             project.version_number += 1
             await tx.update(project)
 
+            for f_id, value in data["functions"].items():
+                function_list = await tx.get_by_filters(Function, _joins=['handler'], id=f_id, user_id=user_id)
+                if not function_list:
+                    raise HTTPException(status_code=400, detail="Function not found")
+                function: Function = function_list[0]
+                handler: FunctionHandler = function.relations["handler"]
+                if not handler:
+                    raise HTTPException(status_code=404, detail="Handler not found")
+
+                function.project_version += 1
+                await tx.update(function)
+                new_handler = FunctionHandler(function_id=function.id,
+                                              project_version=function.project_version,
+                                              function_path=value["function_path"],
+                                              function_name=value["function_name"],
+                                              memory_size=handler.memory_size,
+                                              timeout=handler.timeout)
+                await tx.insert(new_handler)
+
             await self.async_req.post("/api/zip/zip-project", "code-service", {
                 "user_id": project.user_id,
+                "project_id": project.id,
                 "project_name": project.project_name,
                 "version_number": project.version_number
             }) # TODO заменить все на Kafka

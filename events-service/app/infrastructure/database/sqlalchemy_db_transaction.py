@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from typing import Any
 
 from sqlalchemy import update, select, delete, inspect, text
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -46,20 +47,25 @@ class SqlAlchemyDBTransaction(DBTransaction):
             else:
                 filters.append(column == v)
 
-        options = []
-        requested_relations = []
-        if _selections:
-            options += [selectinload(getattr(model_class, name)) for name in _selections]
-            requested_relations += _selections
-        if _joins:
-            options += [joinedload(getattr(model_class, name)) for name in _joins]
-            requested_relations += _joins
+        options, requested_relations = self.__create_options(model_class, _selections, _joins)
 
         result = await self.session.execute(
             select(model_class).where(*filters).options(*options)
         )
 
         return [model_to_domain(res_domain, requested_relations) for res_domain in result.scalars().unique().all()]
+
+    def __create_options(self, model_class, selections, joins) -> tuple[list[Any], list[Any]]:
+        options = []
+        requested_relations = []
+        if selections:
+            options += [selectinload(getattr(model_class, name)) for name in selections]
+            requested_relations += selections
+        if joins:
+            options += [joinedload(getattr(model_class, name)) for name in joins]
+            requested_relations += joins
+
+        return options, requested_relations
 
     async def get_by_query(self, domain_class, sql: str, **kwargs):
         model_class = DOMAIN_MODEL_MAPPING[domain_class]

@@ -24,7 +24,7 @@ class FunctionsListUseCase:
 
         with tempfile.TemporaryFile() as tmpfile:
             try:
-                async for chunk in self.async_req.get_stream("/api/code/download-file", "code-service",
+                async for chunk in self.async_req.get_stream("/api/user-files/download-file", "code-service",
                                                              {"path": path}):
                     tmpfile.write(chunk)
             except httpx.HTTPStatusError as e:

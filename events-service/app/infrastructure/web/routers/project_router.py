@@ -8,6 +8,7 @@ from application.usecase.projects.rollback_project_usecase import RollbackProjec
 from application.usecase.projects.commit_project_usecase import CommitProjectUseCase
 from infrastructure.database.sqlalchemy_db_transaction import SqlAlchemyDBTransaction
 from infrastructure.messaging.httpx_async_request import HttpxAsyncRequest
+from infrastructure.web.dto.commit_function_dto import CommitProjectDTO
 
 project_router = APIRouter(prefix="/api/project", tags=["Project"])
 
@@ -19,10 +20,10 @@ async def create_project(project_name: Annotated[str, Field(min_length=3, max_le
     return await CreateProjectUsecase(async_req, db_transaction).execute(300904, project_name)
 
 @project_router.post("/commit-project")
-async def commit_project(project_id: Annotated[int, Field(ge=1)]):
+async def commit_project(data: CommitProjectDTO):
     async_req = HttpxAsyncRequest()
     db_transaction = SqlAlchemyDBTransaction()
-    await CommitProjectUseCase(async_req, db_transaction).execute(300904, project_id)
+    await CommitProjectUseCase(async_req, db_transaction).execute(300904, data.model_dump())
     return {"success": True}
 
 @project_router.delete("/rollback")

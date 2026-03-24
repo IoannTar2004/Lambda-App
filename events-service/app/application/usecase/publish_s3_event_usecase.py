@@ -32,12 +32,13 @@ class PublishS3EventUsecase:
                                                              event=event,
                                                              key=key)
             for s3 in s3_functions:
-                function : Function = await tx.get_by_filters(Function, _joins=["handler"], id=s3.id)
+                function : Function = (await tx.get_by_filters(Function, _joins=["handler"], id=s3.id))[0]
                 handler : FunctionHandler = function.relations["handler"]
                 message_with_metadata = {
+                    "user_id": function.user_id,
                     "language": function.language,
                     "project_id": function.project_id,
-                    "project_version": function.project_version,
+                    "project_version": handler.project_version,
                     "function_path": handler.function_path,
                     "function_name": handler.function_name,
                     "memory_size": handler.memory_size,
