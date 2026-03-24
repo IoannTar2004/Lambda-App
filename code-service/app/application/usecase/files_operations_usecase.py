@@ -6,7 +6,6 @@ from fastapi import UploadFile, HTTPException
 from application.ports.storage import Storage
 from application.ports.cache import Cache
 from infrastructure.web.dto.user_files.listdir_dto import ListdirDto
-from settings import settings
 
 
 class FilesOperationsUseCase:
@@ -20,7 +19,7 @@ class FilesOperationsUseCase:
         await self.cache.delete("functions:" + directory + "/" + file.filename)
 
     async def download(self, bucket: str, filename: str):
-        if await self.storage.exists(settings.S3_USER_FILES_BUCKET, filename):
+        if await self.storage.exists(bucket, filename):
             return self.storage.download(bucket, filename)
         raise HTTPException(status_code=404, detail="File not found")
 

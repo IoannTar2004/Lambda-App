@@ -1,18 +1,17 @@
 import os.path
-from typing import cast
 
 from fastapi import APIRouter, UploadFile, Request
-from mypy_boto3_s3 import S3Client
 from starlette.responses import StreamingResponse
 
 from application.usecase.save_code_usecase import SaveCodeUseCase
-from application.usecase.user_files_operations_usecase import UserFilesOperationsUseCase
+from application.usecase.files_operations_usecase import FilesOperationsUseCase
 from infrastructure.web.dto.user_files.save_code_dto import SaveCodeDto
+from settings import settings
 
-file_router = APIRouter(prefix="/api/code", tags=["User files"])
+user_files_router = APIRouter(prefix="/api/user-files", tags=["User files"])
 
 
-@file_router.post("/save-code")
+@user_files_router.post("/save-code")
 async def save_code(data: SaveCodeDto, request: Request):
     """
     upload plain text code
@@ -23,29 +22,29 @@ async def save_code(data: SaveCodeDto, request: Request):
     await save_code_usecase.save(data.path, data.code)
     return {"success": True}
 
-@file_router.post("/upload-file")
+@user_files_router.post("/upload-file")
 async def upload_file(file: UploadFile, directory: str, request: Request):
-    user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage, request.app.state.cache)
-    await user_files_operations_usecase.upload(file, directory)
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.storage, request.app.state.cache)
+    await files_operations_usecase.upload(settings.S3_USER_FILES_BUCKET, file, directory)
     return {"success": True}
 
-@file_router.get("/download-file")
+@user_files_router.get("/download-file")
 async def download_file(path: str, request: Request):
-    user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage)
-    file = await user_files_operations_usecase.download(path)
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.storage)
+    file = await files_operations_usecase.download(settings.S3_USER_FILES_BUCKET, path)
     return StreamingResponse(file, media_type="application/octet-stream",
                              headers={
                                  "Content-Disposition": f'attachment; filename="{os.path.basename(path)}"'
                              })
 
-@file_router.get("/listdir")
+@user_files_router.get("/listdir")
 async def listdir(path: str, request: Request):
-    user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage)
-    files = await user_files_operations_usecase.listdir(path)
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.storage)
+    files = await files_operations_usecase.listdir(settings.S3_USER_FILES_BUCKET, path)
     return files
 
-@file_router.delete("/delete-file")
+@user_files_router.delete("/delete-file")
 async def delete_file(path: str, request: Request):
-    user_files_operations_usecase = UserFilesOperationsUseCase(request.app.state.storage)
-    await user_files_operations_usecase.delete(path)
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.storage)
+    await files_operations_usecase.delete(settings.S3_USER_FILES_BUCKET, path)
     return {"success": True}

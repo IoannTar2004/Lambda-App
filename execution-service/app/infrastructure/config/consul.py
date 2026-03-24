@@ -14,9 +14,9 @@ async def service_register() -> None:
                 "ID": settings.SERVICE_NAME,
                 "Name": settings.SERVICE_NAME,
                 "Address": settings.ACCESS_HOST,
-                "Port": int(settings.ACCESS_PORT),
+                "Port": settings.ACCESS_PORT,
                 "Check": {
-                    "HTTP": f"http://{settings.ACCESS_HOST}:{int(settings.ACCESS_PORT)}/health",
+                    "HTTP": f"http://{settings.ACCESS_HOST}:{settings.ACCESS_PORT}/health",
                     "Interval": "10s"
                 }
             }

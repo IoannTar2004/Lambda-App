@@ -4,5 +4,5 @@ from dataclasses import dataclass
 @dataclass
 class DeleteVersionCommand:
     user_id: int
-    function_name: str
+    project_id: int
     version_number: int
