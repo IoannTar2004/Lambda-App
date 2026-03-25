@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     ACCESS_PORT: str
     SERVICE_NAME: str
 
+    S3_USER_URL: str
+    S3_USER_ACCESS_KEY: str
+    S3_USER_SECRET_KEY: str
+
     REDIS_HOST: str
     REDIS_PORT: int
 

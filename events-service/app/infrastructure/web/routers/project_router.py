@@ -10,7 +10,7 @@ from infrastructure.database.sqlalchemy_db_transaction import SqlAlchemyDBTransa
 from infrastructure.messaging.httpx_async_request import HttpxAsyncRequest
 from infrastructure.web.dto.commit_function_dto import CommitProjectDTO
 
-project_router = APIRouter(prefix="/api/project", tags=["Project"])
+project_router = APIRouter(prefix="/api/events/project", tags=["Project"])
 
 
 @project_router.post("/create")

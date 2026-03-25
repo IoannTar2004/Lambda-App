@@ -15,7 +15,7 @@ zip_router = APIRouter(prefix="/api/zip", tags=["Zip versions"])
 
 @zip_router.post("/zip-project")
 async def zip_project(data: ZipProjectDto, request: Request):
-    storage = request.app.state.storage
+    storage = request.app.state.s3_code
     zip_project_usecase = ZipProjectUsecase(storage)
     await zip_project_usecase.execute(to_command(ZipProjectCommand, data))
 
@@ -23,7 +23,7 @@ async def zip_project(data: ZipProjectDto, request: Request):
 
 @zip_router.delete("/delete-version")
 async def delete_version(data: DeleteVersionDto, request: Request):
-    storage = request.app.state.storage
+    storage = request.app.state.s3_code
     delete_version_usecase = DeleteVersionUsecase(storage)
     await delete_version_usecase.execute(to_command(DeleteVersionCommand, data))
 
@@ -31,7 +31,7 @@ async def delete_version(data: DeleteVersionDto, request: Request):
 
 @zip_router.delete("/delete-all-archives")
 async def delete_all_archives(data: DeleteArchivesDTO, request: Request):
-    storage = request.app.state.storage
+    storage = request.app.state.s3_code
     delete_all_archives = DeleteAllArchivesUsecase(storage)
     await delete_all_archives.execute(to_command(DeleteArchivesCommand, data))
 

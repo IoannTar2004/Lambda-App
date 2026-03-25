@@ -36,6 +36,7 @@ class PublishS3EventUsecase:
                 handler : FunctionHandler = function.relations["handler"]
                 message_with_metadata = {
                     "user_id": function.user_id,
+                    "function_id": function.id,
                     "language": function.language,
                     "project_id": function.project_id,
                     "project_version": handler.project_version,

@@ -8,6 +8,7 @@ from faststream import FastStream
 
 from infrastructure.config.consul import service_register, service_unregister
 from infrastructure.messaging.kafka.kafka import Kafka
+from infrastructure.storage.async_s3_notification_service import AsyncS3NotificationService
 from infrastructure.web.routers.events_router import events_router
 from infrastructure.web.routers.functions_router import functions_router
 from infrastructure.web.routers.project_router import project_router
@@ -18,6 +19,8 @@ load_dotenv(settings.Config.env_file)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.cache = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
+    app.state.s3_service = AsyncS3NotificationService(settings.S3_USER_URL,
+                                                   settings.S3_USER_ACCESS_KEY, settings.S3_USER_SECRET_KEY)
     await service_register()
     kafka = Kafka(settings.KAFKA_BOOTSTRAP_SERVERS)
     fast_stream = FastStream(kafka.broker)

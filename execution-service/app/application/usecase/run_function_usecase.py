@@ -1,58 +1,85 @@
 import asyncio
+import io
 import json
 import os
 import shutil
 import subprocess
 import tempfile
+import time
+import uuid
 from pathlib import Path
 
 import httpx
 from fastapi import HTTPException
+from watchfiles import awatch
 
 from application.ports.async_request import AsyncRequest
+from application.ports.cache import Cache
+from application.ports.log_stream import LogStream
+from application.ports.socket import Socket
+from infrastructure.config.logger_config import logger
 from settings import settings
 
 
 class RunFunctionUsecase:
 
-    def __init__(self, async_req: AsyncRequest):
+    def __init__(self, async_req: AsyncRequest, socket: Socket, log_stream: LogStream, cache: Cache):
         self.async_req = async_req
+        self.socket = socket
+        self.log_stream = log_stream
+        self.cache = cache
 
     async def execute(self, function_meta):
-        target_dir = (Path(settings.CODE_ARCHIVES_DIRECTORY) / str(function_meta["project_id"]) /
+        project_id = function_meta["project_id"]
+        function_id = function_meta["function_id"]
+        user_id = function_meta["user_id"]
+        script_path = Path(settings.LAMBDA_SCRIPT_PATH)
+        function_name = function_meta["function_name"]
+
+        target_dir = (Path(settings.CODE_ARCHIVES_DIRECTORY) / str(project_id) /
                       f"v{function_meta['project_version']}")
         if not os.path.exists(target_dir):
-            await self.download_and_unzip_code(target_dir, function_meta)
+            await self._download_and_unzip_code(target_dir, function_meta)
 
         last_used = target_dir / ".last_used"
         last_used.touch()
 
         loop = asyncio.get_running_loop()
-        script_path = Path("./app/application/utils/lambda_run.py")
-        module_path = target_dir / function_meta["function_path"]
-        function_name = function_meta["function_name"]
-        def run_docker():
-            with subprocess.Popen(
-                    ["python", script_path, module_path, function_name, json.dumps(function_meta["message"], indent=4)],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                    encoding="cp866"
-            ) as process:
-                for line in process.stdout:
-                    print(line.rstrip())
-                for line in process.stderr:
-                    print(line.rstrip())
+        run_id = uuid.uuid4().hex
+        process = None
+        container_name = f"{user_id}_{run_id}"
 
-        lock_file = target_dir / ".lock_file"
-        lock_file.touch()
+        await self.cache.zadd(f"run_function:{user_id}", {run_id: time.time()})
+
+        def run_docker():
+            nonlocal process
+            command = self._get_docker_command(container_name, script_path, target_dir, function_meta["function_path"],
+                                               function_name, json.dumps(function_meta["message"]),
+                                               language=function_meta["language"])
+            process = subprocess.Popen(
+                    command,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    encoding="utf-8"
+            )
+            future = asyncio.run_coroutine_threadsafe(self._stream_prints(process, user_id, run_id), loop)
+            process.wait()
+            future.result()
+
+        lock = target_dir / ".lock_file"
+        lock.touch()
+
         try:
             await asyncio.wait_for(loop.run_in_executor(None, run_docker), timeout=function_meta["timeout"])
         except asyncio.TimeoutError:
-            print("Timeout")
-        os.remove(lock_file)
+            logger.info(f"Function {run_id} timed out")
+            await self._kill_docker_container(loop, container_name)
 
-    async def download_and_unzip_code(self, target_dir, function_meta):
+        await self._flush_logs(user_id, function_id, run_id)
+        os.remove(lock)
+
+    async def _download_and_unzip_code(self, target_dir, function_meta):
         storage_archive_path = (f"{function_meta['user_id']}/{function_meta['project_id']}/"
                                 f"v{function_meta['project_version']}.zip")
 
@@ -73,7 +100,74 @@ class RunFunctionUsecase:
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
                 raise HTTPException(status_code=404, detail="File not found")
+        except httpx.ReadTimeout as e:
+            tmpfile.close()
+            raise e
 
         finally:
             if os.path.exists(tmpfile.name):
                 os.remove(tmpfile.name)
+
+    def _get_docker_command(self, name, script_path, target_dir, function_path, function_name,
+                            *args, language :str = "python"):
+        if language == "python":
+            return [
+                "docker", "run",
+                "--name", name,
+                "--rm", "--read-only",
+                "-e", "PYTHONUNBUFFERED=1",
+                "--tmpfs", "/mnt/usr:size=64M,mode=1777",
+                "-v", f"{script_path}:/usr/lambda_run.py",
+                "-v", f"{target_dir}:/usr/src",
+                "-w", "/usr/src",
+                "python:3", "python", "-u", "/usr/lambda_run.py",
+                function_path, function_name, *args
+            ]
+
+        return []
+
+    async def _stream_prints(self, process, user_id, run_id):
+        for line in iter(process.stdout.readline, ""):
+            await self._send_logs_to_user(user_id, run_id, line.rstrip()),
+
+    async def _send_logs_to_user(self, user_id: int, run_id: str, text: str):
+        message = {"text": text}
+        id = await self.log_stream.add(self._logs_key_f(user_id, run_id), message)
+        message["id"] = id
+
+        if user_id in self.socket.get_connections():
+            await self.socket.send_json(user_id, message)
+
+    async def _kill_docker_container(self, loop, container_name):
+        await loop.run_in_executor(
+            None,
+            lambda: subprocess.run(
+                ["docker", "kill", container_name],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+        )
+
+    async def _flush_logs(self, user_id, function_id, run_id):
+        logs = await self.log_stream.read(self._logs_key_f(user_id, run_id))
+        logs = [{"id": id, "text": text} for id, text in logs]
+
+        file_obj = io.BytesIO(json.dumps(logs, ensure_ascii=False).encode("utf-8"))
+        file_obj.seek(0)
+        await self.async_req.post("/api/file/upload-file", "code-service", data={
+            "bucket": "function-logs",
+            "directory": f"{user_id}/{function_id}",
+        }, files={
+            "file": (run_id + ".json", file_obj, "application/json")
+        })
+
+        await self.log_stream.delete(self._logs_key_f(user_id, run_id))
+        await self.cache.zrem(self._run_function_f(user_id), run_id)
+        print("logs", await self.log_stream.read(self._logs_key_f(user_id, run_id)))
+        print("runs", await self.cache.zrange(self._run_function_f(user_id)))
+
+    def _logs_key_f(self, user_id, run_id):
+        return f"logs:{user_id}:{run_id}"
+
+    def _run_function_f(self, user_id):
+        return f"run_function:{user_id}"

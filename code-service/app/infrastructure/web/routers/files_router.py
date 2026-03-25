@@ -1,6 +1,7 @@
 import os
 
 from fastapi import APIRouter, UploadFile, Request
+from fastapi.params import Form
 from starlette.responses import StreamingResponse
 
 from application.usecase.files_operations_usecase import FilesOperationsUseCase
@@ -8,14 +9,15 @@ from application.usecase.files_operations_usecase import FilesOperationsUseCase
 files_router = APIRouter(prefix="/api/file", tags=["File (Admin and Communication roles only)"])
 
 @files_router.post("/upload-file")
-async def upload_file(file: UploadFile, bucket: str, directory: str, request: Request):
-    files_operations_usecase = FilesOperationsUseCase(request.app.state.storage, request.app.state.cache)
+async def upload_file(request: Request, file: UploadFile,
+                      bucket: str = Form(max_length=64), directory: str = Form(max_length=256)):
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code, request.app.state.cache)
     await files_operations_usecase.upload(bucket, file, directory)
     return {"success": True}
 
 @files_router.get("/download-file")
 async def download_file(bucket: str, path: str, request: Request):
-    files_operations_usecase = FilesOperationsUseCase(request.app.state.storage)
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)
     file = await files_operations_usecase.download(bucket, path)
     return StreamingResponse(file, media_type="application/octet-stream",
                              headers={
@@ -24,12 +26,12 @@ async def download_file(bucket: str, path: str, request: Request):
 
 @files_router.get("/listdir")
 async def listdir(bucket: str, path: str, request: Request):
-    files_operations_usecase = FilesOperationsUseCase(request.app.state.storage)
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)
     files = await files_operations_usecase.listdir(bucket, path)
     return files
 
 @files_router.delete("/delete-file")
 async def delete_file(bucket: str, path: str, request: Request):
-    files_operations_usecase = FilesOperationsUseCase(request.app.state.storage)
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)
     await files_operations_usecase.delete(bucket, path)
     return {"success": True}

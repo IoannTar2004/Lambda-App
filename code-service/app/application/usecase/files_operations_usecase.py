@@ -16,7 +16,6 @@ class FilesOperationsUseCase:
     async def upload(self, bucket: str, file: UploadFile, directory: str):
         data = file.file.read()
         await self.storage.upload(bucket, directory + "/" + file.filename, data)
-        await self.cache.delete("functions:" + directory + "/" + file.filename)
 
     async def download(self, bucket: str, filename: str):
         if await self.storage.exists(bucket, filename):

@@ -14,7 +14,8 @@ class AsyncRequest(ABC):
         pass
 
     @abstractmethod
-    async def post(self, endpoint: str | None, service_name: str | None, params: dict) -> Any:
+    async def post(self, endpoint: str | None, service_name: str | None, json: dict = None,
+                   data: dict = None, files: dict = None) -> Any:
         pass
 
     @abstractmethod

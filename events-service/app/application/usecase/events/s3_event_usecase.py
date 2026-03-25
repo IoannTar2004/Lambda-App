@@ -1,5 +1,5 @@
-from application.ports.storage import StorageNotification
-from application.usecase.commands.events.create_s3_event_command import CreateS3EventCommand
+from application.commands.events.create_s3_event_command import CreateS3EventCommand
+from application.ports.storage_notification import StorageNotification
 
 
 class S3EventUsecase:

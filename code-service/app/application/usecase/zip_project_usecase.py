@@ -17,13 +17,13 @@ class ZipProjectUsecase:
         zip_buffer = io.BytesIO()
 
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-            files = await self.storage.recursive_listdir(settings.S3_USER_FILES_BUCKET,
+            files = await self.storage.recursive_listdir(settings.S3_USER_CODE_BUCKET,
                                                          f"{data.user_id}/{data.project_name}")
             if not files:
                 raise HTTPException(status_code=404, detail="Prefix is not found")
 
             for file_info in files:
-                stream = self.storage.download(settings.S3_USER_FILES_BUCKET, file_info["Key"])
+                stream = self.storage.download(settings.S3_USER_CODE_BUCKET, file_info["Key"])
 
                 file_buffer = io.BytesIO()
                 async for chunk in stream:
