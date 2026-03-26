@@ -1,10 +1,33 @@
+@font-face {
+  font-family: 'VK Sans Display Regular';
+  src: url('../../fonts/VK-Sans-Display/VKSansDisplay-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'VK Sans Display Medium';
+  src: url('../../fonts/VK-Sans-Display/VKSansDisplay-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'VK Sans Display Bold';
+  src: url('../../fonts/VK-Sans-Display/VKSansDisplay-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'VK Sans Display SemiBold';
+  src: url('../../fonts/VK-Sans-Display/VKSansDisplay-SemiBold.ttf') format('truetype');
+}
+
 html, body {
     height: 100%;
     margin: 0;
 }
 
+* {
+  font-family: "VK Sans Display Regular", serif;
+}
+
 body {
-    padding: 10px;
     box-sizing: border-box;
 }
 
