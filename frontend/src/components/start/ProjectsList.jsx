@@ -9,7 +9,6 @@ export const ProjectsList = () => {
       name: "Проект ".repeat(7),
       modified: "26.03.2025 в 13:20"
     })
-    console.log("Проект проект проект проект проект проект".length)
     setProjects(newProjects)
   }, []);
 
@@ -18,12 +17,14 @@ export const ProjectsList = () => {
         <h3>Проекты</h3>
         <button id={styles.createProject}>Создать проект</button>
         <div className={styles.projectsListBox}>
-          {projects.map((e) =>
+          {projects.length > 0 ? (projects.map((e) =>
               <div className={styles.projectElement}>
                 <div className={styles.projectName}>{e.name}</div>
                 <div className={styles.projectDesc}>{e.modified}</div>
-              </div>
-            )}
+              </div>)
+            ) : (
+              <div className={styles.noProjects}>Создайте свой первый проект!</div>
+          )}
         </div>
       </div>
   )

@@ -1,9 +1,13 @@
-import "../../css/CodeEditor.module.css"
+import styles from "../../css/CodeEditor.module.css"
 import EditorField from "./EditorField.jsx";
+import {ProjectStructure} from "./ProjectStructure.jsx";
 
 export const CodeEditorPage = () => {
 
-    return (
-        <EditorField />
-    )
+  return (
+      <div className={styles.content}>
+          <ProjectStructure />
+      </div>
+      // <EditorField />
+  )
 }

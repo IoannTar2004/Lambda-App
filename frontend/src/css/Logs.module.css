@@ -1,0 +1,19 @@
+.content {
+    flex: 1;
+    box-sizing: border-box;
+    padding: 10px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.logsField {
+    width: 90%;
+    flex: 1;
+    background-color: black;
+    color: white;
+    font-family: "DejaVu Sans", serif;
+    word-break: break-all;
+    padding: 20px;
+    box-sizing: border-box;
+}

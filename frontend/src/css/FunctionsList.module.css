@@ -1,0 +1,116 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    height: 90%;
+    box-sizing: border-box;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.projectName {
+    margin-left: 5%;
+}
+
+.openProjectBox {
+    height: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#openProject {
+    width: 20%;
+    background-color: #1E1E1E;
+    color: white;
+}
+
+#openProject:hover {
+    background-color: #7e0707;
+}
+
+.toolsBox {
+    display: flex;
+    height: 14%;
+}
+
+.searchInputBox {
+    width: 60%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+#searchInput {
+    width: 30%;
+    height: auto;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 30px;
+}
+
+.createFunctionButtonBox {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#createFunction {
+    width: 40%;
+    background-color: blue;
+    color: white;
+    border: blue;
+}
+
+#createFunction:hover {
+    background-color: #0c2180;
+}
+
+.functionsListBox {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+
+    align-items: center;
+}
+
+.functionElement {
+    width: 50%;
+    height: 30%;
+    border: 3px solid blue;
+    border-radius: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: background-color, color, 0.3s;
+    box-shadow: 10px 10px 10px 1px #868282;
+}
+
+.functionElement:hover {
+    cursor: pointer;
+    background-color: #4f4fb4;
+    color: white;
+}
+
+.functionElement .name {
+    font-family: "VK Sans Display SemiBold", serif;
+    font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 20px;
+}
+
+.functionElement .info {
+    font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+
+.functionElement .info span {
+    font-family: "VK Sans Display SemiBold", serif;
+}

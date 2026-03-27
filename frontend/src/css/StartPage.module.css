@@ -25,12 +25,9 @@
     border: blue;
     font-size: 20px;
     padding: 7px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
 }
 
 #createProject:hover {
-    cursor: pointer;
     background-color: #0c2180;
 }
 
@@ -44,13 +41,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2%;
+    gap: 5px;
     overflow-y: auto;
 }
 
 .projectElement {
     width: 100%;
-    height: 10%;
+    height: 11%;
     background-color: rgba(255, 165, 0, 0.4);
     border-radius: 15px;
     border: 3px solid orange;
@@ -60,7 +57,7 @@
     padding-left: 10px;
 }
 
-.projectName {
+.projectElement .projectName {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -69,7 +66,7 @@
     padding: 5px;
 }
 
-.projectDesc {
+.projectElement .projectDesc {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -78,13 +75,111 @@
     padding-left: 5px;
 }
 
+.noProjects {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 20px;
+}
+
 .projectElement:hover {
     cursor: pointer;
     background-color: rgba(255, 165, 0, 1);
     color: white;
 }
 
-.projectsDescBox {
+.projectDescBox {
     flex: 1;
     height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.projectDescWindow {
+    width: 90%;
+    height: 50%;
+    box-shadow: 0 0 10px 1px #868282;
+    border-radius: 15px;
+    padding: 10px 20px;
+    box-sizing: border-box;
+}
+
+.projectDescWindow .projectName {
+    font-family: "VK Sans Display Bold", serif;
+    font-size: 23px;
+    margin-bottom: 20px;
+}
+
+.projectDescWindow .projectDesc {
+    color: gray;
+    margin-bottom: 10px;
+}
+
+.projectLanguageBarBox {
+    margin-top: 5%;
+    width: 100%;
+    height: 2.5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.projectLanguageBarBox .bar {
+    border-radius: 10px;
+    width: 80%;
+    height: 100%;
+
+}
+
+.languagesListBox {
+    height: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.languageItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+}
+
+.languageCircle {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.projectButtonsBox {
+    height: 30%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10%;
+}
+
+#showFunctions {
+    width: 25%;
+    background-color: green;
+    color: white;
+}
+
+#showFunctions:hover {
+    background-color: #055605;
+}
+
+#openProject {
+    width: 30%;
+    background-color: #1E1E1E;
+    color: white;
+}
+
+#openProject:hover {
+    background-color: #7e0707;
 }

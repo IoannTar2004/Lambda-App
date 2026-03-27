@@ -1,0 +1,192 @@
+.content {
+    flex: 1;
+    box-sizing: border-box;
+    padding: 10px 20px;
+    overflow-y: auto;
+}
+
+.contentFlex {
+    display: flex;
+    width: 100%;
+    padding-top: 20px;
+    box-sizing: border-box;
+    gap: 20px;
+}
+
+.contentFlexLeft {
+    width: 45%;
+}
+
+.functionDescription {
+    padding: 5px 20px 10px 20px;
+    box-sizing: border-box;
+    border-radius: 15px;
+    background-color: #efebeb;
+    box-shadow: 10px 10px 10px 1px #868282;
+    font-size: 20px;
+}
+
+.functionDescription .parameter {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    box-sizing: border-box;
+    border-bottom: 2px solid black;
+
+    max-width: 100%;           /* не больше родителя */
+    word-break: break-all;
+}
+
+.functionDescription .parameter .head {
+    font-family: "VK Sans Display SemiBold", serif;
+}
+
+.functionButtons {
+    padding: 20px;
+    display: flex;
+    gap: 20%;
+    justify-content: center;
+    align-items: center;
+}
+
+.functionButton {
+    font-size: 40px;
+    border: 2px solid black;
+    border-radius: 10px;
+    transition: background-color, color, 0.3s;
+}
+
+.editButton:hover {
+    cursor: pointer;
+    background-color: blue;
+    border: 2px solid blue;
+    color: white;
+}
+
+.deleteButton:hover {
+    cursor: pointer;
+    background-color: red;
+    border: 2px solid red;
+    color: white;
+}
+
+.logsBox {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logElement {
+    width: 80%;
+    height: 13%;
+    border: 3px solid green;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: background-color, color, 0.3s;
+}
+
+.logElement:hover {
+    cursor: pointer;
+    background-color: green;
+    color: white;
+}
+
+.logElement .id {
+    font-family: "VK Sans Display SemiBold", serif;
+    margin-bottom: 10px;
+}
+
+.logElement .info {
+    margin-top: 10px;
+}
+
+.isActive {
+    margin-top: 10px;
+    font-family: "VK Sans Display SemiBold", serif;
+    display: flex;
+    gap: 10px;
+}
+
+.activeCircle {
+    height: 20px;
+    width: 20px;
+    background-color: green;
+    border-radius: 50%;
+}
+
+.modalContent {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.editWindow {
+    width: 50%;
+    height: 55%;
+    background-color: #efebeb;
+    box-shadow: 10px 10px 10px 1px #868282;
+    border-radius: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.editWindow .head {
+    font-family: "VK Sans Display SemiBold", serif;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.editWindow input {
+    width: 90%;
+    margin-bottom: 20px;
+    padding: 5px;
+    font-size: 18px;
+}
+
+.editWindow input[type="number"] {
+    width: 15%;
+}
+
+.editWindow select {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.saveParametersBox {
+    display: flex;
+    justify-content: center;
+}
+
+#saveParametersButton {
+    background-color: blue;
+    color: white;
+}
+
+.deleteWindow {
+    width: 40%;
+    height: 30%;
+    background-color: #efebeb;
+    box-shadow: 10px 10px 10px 1px #868282;
+    border-radius: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 40%;
+    align-items: center;
+}
+
+#deleteFunctionButton {
+    background-color: red;
+    color: white;
+}
+
+#saveParametersButton:hover {
+    background-color: #0c2180;
+}
+
+#deleteFunctionButton:hover {
+    background-color: #7a0808;
+}

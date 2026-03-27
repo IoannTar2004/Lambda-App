@@ -7,7 +7,7 @@ export const VkCloudTemplate = () => {
   return (
       <div className={styles.content}>
         <img src={vkCloudMenu} alt="menu" />
-        <div>
+        <div className={"app"}>
           <img className={styles.vkСloudHeaderStub} src={vkCloudHeader} alt="header" />
           <Outlet />
         </div>

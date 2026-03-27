@@ -1,3 +1,54 @@
+.content {
+    background-color: #1E1E1E;
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.projectStructureBox {
+    background-color: #181818;
+    width: 25%;
+    border-right: 1px solid #4d4b4b;
+    color: white;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.projectStructureBox .projectName {
+    width: 80%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 18px;
+}
+
+.directory {
+    display: flex;
+}
+
+.directory:hover {
+    cursor: pointer;
+    background-color: #655858;
+}
+
+.toolsBox {
+    display: flex;
+    color: white;
+    font-size: 25px;
+    gap: 10px;
+    visibility: hidden;
+}
+
+.directory:hover .toolsBox {
+    visibility: visible;
+}
+
+
+.tool:hover {
+    background-color: darkgreen;
+    border-radius: 10px;
+}
+
 #save-code {
     padding: 10px;
     font-size: 15px;
