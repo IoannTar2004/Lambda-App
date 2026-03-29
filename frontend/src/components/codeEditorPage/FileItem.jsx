@@ -7,9 +7,12 @@ import {ProjectContext} from "./ProjectStructure.jsx";
 export const FileItem = ({currentPath}) => {
 
   const extension = currentPath.split(".").pop()
+  const correctNamePattern = /^[а-яА-Я\w.-]+$/
+
   const { action, clearAction, setContextMenu, updatePath } = useContext(ProjectContext);
   const [name, setName] = useState(currentPath.split("/").pop())
   const [isRenaming, setIsRenaming] = useState(false)
+
 
   const openContextMenu = (e) => {
     e.preventDefault()
@@ -34,7 +37,7 @@ export const FileItem = ({currentPath}) => {
       clearAction();
       return;
     }
-    if (name === "") {
+    if (!correctNamePattern.test(name)) {
       handleOnBlur()
       return;
     }
@@ -71,7 +74,7 @@ export const FileItem = ({currentPath}) => {
               <input className={styles.rename} autoFocus value={name} size={name.length || 1} onKeyDown={handleKeyDown}
                      onChange={(e) => {setName(e.target.value)}}
                      onBlur={handleOnBlur}
-                     style={{backgroundColor: name === "" ? "#F66A6AFF" : ""}}/> :
+                     style={{backgroundColor: !correctNamePattern.test(name) ? "#F66A6AFF" : ""}}/> :
               <span className={styles.name}>{name}</span>
             }
           </div>

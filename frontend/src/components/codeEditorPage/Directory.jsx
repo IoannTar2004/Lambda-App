@@ -5,10 +5,19 @@ import {FileItem} from "./FileItem.jsx";
 import {ProjectContext} from "./ProjectStructure.jsx";
 
 export const Directory = ({level, currentPath, content}) => {
+
+  const correctNamePattern = /^[а-яА-Я\w.-]+$/
+
   const [opened, setOpened] = useState(level === 0)
   const { action, clearAction, setContextMenu, updatePath } = useContext(ProjectContext);
   const [name, setName] = useState(currentPath.split("/").slice(-2, -1))
   const [isRenaming, setIsRenaming] = useState(false)
+
+  useEffect(() => {
+    if (action?.type === "rename" && action?.path === currentPath) {
+      setIsRenaming(true)
+    }
+  }, [action, currentPath]);
 
   const buildStructure = () => {
     const childrenMap = new Map()
@@ -31,11 +40,11 @@ export const Directory = ({level, currentPath, content}) => {
         return null
 
       const isFile = childContent[0] === null
+      const newPath = `${level > 0 ? currentPath : ""}${name}`
       if (isFile)
-        return <FileItem currentPath={`${level > 0 ? currentPath : ""}${name}`}/>
+        return <FileItem key={newPath} currentPath={newPath}/>
 
-      return <Directory level={level + 1} currentPath={`${level > 0 ? currentPath : ""}${name}/`}
-                        content={childContent} />
+      return <Directory key={newPath + "/"} level={level + 1} currentPath={newPath + "/"} content={childContent} />
     })
   }
 
@@ -49,12 +58,6 @@ export const Directory = ({level, currentPath, content}) => {
     )
   }
 
-  useEffect(() => {
-    if (action?.type === "rename" && action?.path === currentPath) {
-      setIsRenaming(true)
-    }
-  }, [action, currentPath]);
-
   const finishRename = () => {
     const split = currentPath.split("/")
     const oldName = split[split.length - 2]
@@ -63,7 +66,7 @@ export const Directory = ({level, currentPath, content}) => {
       clearAction();
       return;
     }
-    if (name === "") {
+    if (!correctNamePattern.test(name)) {
       setName(split[split.length - 2])
       setIsRenaming(false);
       clearAction();
@@ -91,7 +94,7 @@ export const Directory = ({level, currentPath, content}) => {
       <div className={styles.directory} style={{marginLeft: `${level === 0 ? 0 : 20}px`}}>
         <div className={styles.directoryHeader} onClick={() => {
           setOpened(!opened)
-          console.log(currentPath)
+          // console.log(currentPath)
         }} onContextMenu={openContextMenu}>
           <div>
             {opened ?
@@ -101,7 +104,7 @@ export const Directory = ({level, currentPath, content}) => {
             {isRenaming ?
               <input className={styles.rename} autoFocus value={name} size={name.length || 1} onKeyDown={handleKeyDown}
                      onChange={(e) => {setName(e.target.value)}}
-                     style={{backgroundColor: name === "" ? "#F66A6AFF" : ""}}/> :
+                     style={{backgroundColor: !correctNamePattern.test(name) ? "#F66A6AFF" : ""}}/> :
               <span className={styles.name}>{name}</span>
             }
           </div>
@@ -111,9 +114,3 @@ export const Directory = ({level, currentPath, content}) => {
 
   )
 }
-
-//<div className={styles.toolsBox}>
-//             <RiFileUploadFill className={"icon " + styles.tool}/>
-//             <AiFillFileAdd className={"icon " + styles.tool}/>
-//             <RiFolderAddFill className={"icon " + styles.tool}/>
-//           </div>

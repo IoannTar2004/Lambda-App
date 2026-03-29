@@ -19,7 +19,7 @@ export const ProjectStructure = () => {
   const [action, setAction] = useState(null)
 
   useEffect(() => {
-    const structure = ["a/ab/f2", "a/ab/f2/"]
+    const structure = ["a/ab/f1.py", "a/ab/f2.py", "a/f1.py", "b/f1.py", "c/", "a1.js", "a2.py"]
     setProjectName("my_project")
     setBaseStructure(structure)
     setLoading(false)
@@ -41,8 +41,41 @@ export const ProjectStructure = () => {
     setContextMenu(null)
   }
 
-  const handleDeleteClick = () => {
-    setAction({type: "delete", path: contextMenu.path})
+  const checkPath = (path, prefix) => {
+    return path === prefix || prefix.endsWith("/") && path.startsWith(prefix)
+  }
+
+  const handleDeleteDirectoryClick = () => {
+    const deletePath = contextMenu.path
+    const split = deletePath.split("/")
+    const last = split[split.length - 1] === "" ? 2 : 1
+    const parent = split.slice(0, split.length - last).join("/") + "/"
+    const countParent = baseStructure.reduce((acc, path) => acc + (checkPath(path, parent) ? 1 : 0), 0)
+    const countDeletePath = baseStructure.reduce((acc, path) => acc + (checkPath(path, deletePath) ? 1 : 0), 0)
+
+    if (countParent === countDeletePath) {
+      let deleteStructure = [...baseStructure]
+      const index = deleteStructure.findIndex(path => checkPath(path, parent))
+      deleteStructure[index] = parent
+      deleteStructure = deleteStructure.filter((path, i) => {
+        return i === index || !checkPath(path, deletePath)
+      })
+      setBaseStructure(deleteStructure)
+    }
+    else {
+      setBaseStructure(prevState => {
+        return prevState.filter((path) => {
+          console.log(path, deletePath)
+          return !checkPath(path, deletePath)
+        })
+      })
+    }
+
+    setContextMenu(null)
+  }
+
+  const handleDeleteFileClick = () => {
+    setBaseStructure(prevState => prevState.filter(path => path !== contextMenu.path))
     setContextMenu(null)
   }
 
@@ -51,7 +84,6 @@ export const ProjectStructure = () => {
   const updatePath = (oldPath, newPath) => {
     setBaseStructure(prevState => {
       return prevState.map((path) => {
-        console.log(path, oldPath)
         if (path === oldPath || oldPath.endsWith("/") && path.startsWith(oldPath)) {
           const relativePart = path.slice(oldPath.length);
           return newPath + relativePart;
@@ -100,7 +132,7 @@ export const ProjectStructure = () => {
               </div>
 
               {contextMenu.path !== projectName + "/" && (
-                <div className={styles.actionBox} onClick={handleDeleteClick}>
+                <div className={styles.actionBox} onClick={handleDeleteDirectoryClick}>
                   <MdDelete className={".icon"}/> Удалить
                 </div>
               )}
@@ -113,7 +145,7 @@ export const ProjectStructure = () => {
               <div className={styles.actionBox} onClick={handleRenameClick}>
                 <MdDriveFileRenameOutline className={".icon"}/> Переименовать
               </div>
-              <div className={styles.actionBox}>
+              <div className={styles.actionBox} onClick={handleDeleteDirectoryClick}>
                 <MdDelete className={".icon"}/> Удалить
               </div>
             </div>
