@@ -10,43 +10,63 @@
     width: 25%;
     border-right: 1px solid #4d4b4b;
     color: white;
-    padding: 10px;
+    overflow-y: auto;
+    scrollbar-color: white #181818;
+    padding: 5px;
     box-sizing: border-box;
-}
-
-.projectStructureBox .projectName {
-    width: 80%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 18px;
+    position: relative;
 }
 
 .directory {
-    display: flex;
+    box-sizing: border-box;
 }
 
-.directory:hover {
+.directoryHeader {
+    height: 25px;
+    font-size: 18px;
+    margin-bottom: 5px;
+    display: flex;
+    white-space: nowrap;
+}
+
+.directoryHeader:hover {
     cursor: pointer;
-    background-color: #655858;
+    background-color: #3d3838;
 }
 
-.toolsBox {
-    display: flex;
+.name {}
+
+.rename {
+    font-size: 18px;
+    background-color: transparent;
     color: white;
-    font-size: 25px;
-    gap: 10px;
-    visibility: hidden;
+    outline: none;
+    border: none;
+    text-decoration: underline;
 }
 
-.directory:hover .toolsBox {
-    visibility: visible;
+.contextMenu {
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    position: fixed;
+    background-color: white;
+    z-index: 1000;
+    color: black;
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
+.actionBox {
+    display: inline-flex;
+    gap: 5px;
+}
 
-.tool:hover {
-    background-color: darkgreen;
-    border-radius: 10px;
+.actionBox:hover {
+    background-color: #cbc3c3;
+    cursor: pointer;
 }
 
 #save-code {

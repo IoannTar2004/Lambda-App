@@ -14,7 +14,6 @@ export const ProjectDescription = ({projectDescription}) => {
     let linearGradient = "linear-gradient(to right"
     let totalPercent = 0
     for (let e of projectDescription) {
-      console.log(e)
       const color = languagesColors[e.language]
       const percent = e.percent
       linearGradient += `, ${color} ${totalPercent}%, ${color} ${totalPercent + percent}%`

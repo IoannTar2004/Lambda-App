@@ -4,7 +4,7 @@ import redis.asyncio as redis
 import uvicorn
 from dotenv import load_dotenv
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from infrastructure.config.consul import service_register, service_unregister
 from infrastructure.storage.async_s3_service import S3Service
@@ -31,7 +31,8 @@ app.include_router(user_files_router)
 app.include_router(zip_router)
 
 @app.get("/health")
-async def health():
+async def health(request: Request):
+    print(await request.app.state.s3_code.recursive_listdir("user-code", ""))
     return {"status": "ok"}
 
 if __name__ == "__main__":
