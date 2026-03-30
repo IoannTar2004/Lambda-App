@@ -19,7 +19,7 @@ export const ProjectStructure = () => {
   const [action, setAction] = useState(null)
 
   useEffect(() => {
-    const structure = ["a/ab/f1.py", "a/ab/f2.py", "a/f1.py", "b/f1.py", "c/", "a1.js", "a2.py"]
+    const structure = Array.from({ length: 50 }, (_, i) => `${i}.js`)
     setProjectName("my_project")
     setBaseStructure(structure)
     setLoading(false)
@@ -69,8 +69,10 @@ export const ProjectStructure = () => {
     setContextMenu(null)
   }
 
+  const getPathNoProject = (path) => path === projectName + "/" ? "" : path
+
   const handleCreateFile = () => {
-    const path = contextMenu.path === projectName + "/" ? "" : contextMenu.path
+    const path = getPathNoProject(contextMenu.path)
     const newFile= path + ".new"
     setBaseStructure(prevState => {
       prevState.push(newFile)
@@ -82,7 +84,7 @@ export const ProjectStructure = () => {
   }
 
   const handleCreateFolder = () => {
-    const path = contextMenu.path === projectName + "/" ? "" : contextMenu.path
+    const path = getPathNoProject(contextMenu.path)
     const newFolder = path + "new/"
     setBaseStructure(prevState => {
       prevState.push(newFolder)
@@ -94,12 +96,14 @@ export const ProjectStructure = () => {
 
   const handleUploadFile = (event) => {
     const file = event.target.files[0]
+    const path = getPathNoProject(contextMenu.path) + file.name
 
     const reader = new FileReader()
     reader.onload = (e) => {
       const content = e.target.result
-      console.log(content)
+      setAction({type: "uploadFile", dir: contextMenu.path, path: path, text: content})
     }
+
     reader.onerror = () => {
       alert("Ошибка при чтении")
     }
@@ -107,10 +111,9 @@ export const ProjectStructure = () => {
     reader.readAsText(file)
     event.target.value = '';
 
-    setAction({type: "createFile", dir: contextMenu.path})
 
     setBaseStructure(prevState => {
-      prevState.push(contextMenu.path + file.name)
+      prevState.push(path)
       return prevState
     })
     setContextMenu(null)

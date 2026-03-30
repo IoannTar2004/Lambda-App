@@ -3,6 +3,7 @@ import {FaFile} from "react-icons/fa";
 import {languageIcons} from "../functions/LanguageIcons.jsx";
 import {useContext, useEffect, useRef, useState} from "react";
 import {ProjectContext} from "./ProjectStructure.jsx";
+import {FileContext} from "./CodeEditorPage.jsx";
 
 export const FileItem = ({currentPath}) => {
 
@@ -12,7 +13,8 @@ export const FileItem = ({currentPath}) => {
   const { action, clearAction, setContextMenu, updatePath } = useContext(ProjectContext);
   const [name, setName] = useState(currentPath.split("/").pop())
   const [isRenaming, setIsRenaming] = useState(false)
-
+  const [uploadBuffer, setUploadBuffer] = useState(null)
+  const {currentContent, setCurrentContent} = useContext(FileContext)
 
   const openContextMenu = (e) => {
     e.preventDefault()
@@ -32,6 +34,8 @@ export const FileItem = ({currentPath}) => {
         setName("")
         setIsRenaming(true)
       }
+      else if (action?.type === "uploadFile")
+        setUploadBuffer(action?.text)
     }
 
   }, [action, currentPath]);
@@ -73,9 +77,14 @@ export const FileItem = ({currentPath}) => {
     }
   }
 
+  const handleOnClick = () => {
+    setCurrentContent({name: name, upload: uploadBuffer})
+    setUploadBuffer(null)
+  }
+
   return (
       <div className={styles.directory} style={{marginLeft: `20px`}}>
-        <div className={styles.directoryHeader} onContextMenu={openContextMenu} onClick={() => console.log(currentPath)}>
+        <div className={styles.directoryHeader} onContextMenu={openContextMenu} onClick={handleOnClick}>
           <div>
             <span>{languageIcons[extension] || <FaFile className={"icon"}/>} </span>
             {isRenaming ?

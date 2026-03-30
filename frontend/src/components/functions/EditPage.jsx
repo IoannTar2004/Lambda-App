@@ -7,7 +7,7 @@ export const EditPage = () => {
 
   return (
       <div className={styles.modalContent}>
-        <div className={styles.editWindow}>
+        <div className={styles.formWindow}>
           <div className={styles.head}>Путь к обработчику</div>
           <input value={functionData.handlerPath}/>
 

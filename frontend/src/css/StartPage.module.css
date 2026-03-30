@@ -18,7 +18,7 @@
     height: 1%;
 }
 
-#createProject {
+.createProject {
     width: 40%;
     background-color: blue;
     color: white;

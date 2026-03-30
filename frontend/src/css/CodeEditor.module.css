@@ -1,5 +1,5 @@
 .content {
-    background-color: #1E1E1E;
+    background-color: #1D1D1D;
     width: 100%;
     height: 100%;
     display: flex;
@@ -7,6 +7,7 @@
 
 .projectStructureBox {
     background-color: #181818;
+    height: 91%;
     width: 25%;
     border-right: 1px solid #4d4b4b;
     color: white;
@@ -85,6 +86,36 @@
 
 .uploadFile input:hover {
     cursor: pointer;
+}
+
+.editorField {
+    width: 100%;
+    height: 90%;
+    font-family: "Times New Roman", serif;
+    font-size: 20px;
+}
+
+.editorField header {
+    padding: 4px;
+    box-sizing: border-box;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #4d4b4b;
+    gap: 30px;
+}
+
+.editorField button {
+    background-color: black;
+    color: white;
+    padding: 3px;
+    border: none;
+    box-sizing: border-box;
+}
+
+.editorField button:hover {
+    outline: 1px solid white;
 }
 
 #save-code {

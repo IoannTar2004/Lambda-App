@@ -122,36 +122,40 @@
     align-items: center;
 }
 
-.editWindow {
-    width: 50%;
-    height: 55%;
+.formWindow {
+    width: 40%;
     background-color: #efebeb;
     box-shadow: 10px 10px 10px 1px #868282;
     border-radius: 20px;
     padding: 20px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.editWindow .head {
+.formWindow.center {
+    align-items: center;
+}
+
+.formWindow .head {
     font-family: "VK Sans Display SemiBold", serif;
     font-size: 18px;
-    margin-bottom: 5px;
 }
 
-.editWindow input {
+.formWindow input {
     width: 90%;
-    margin-bottom: 20px;
     padding: 5px;
     font-size: 18px;
 }
 
-.editWindow input[type="number"] {
+.formWindow input[type="number"] {
     width: 15%;
 }
 
-.editWindow select {
+.formWindow select {
     font-size: 20px;
-    margin-bottom: 20px;
+    width: 25%;
 }
 
 .saveParametersBox {
@@ -164,23 +168,10 @@
     color: white;
 }
 
-.deleteWindow {
-    width: 40%;
-    height: 30%;
-    background-color: #efebeb;
-    box-shadow: 10px 10px 10px 1px #868282;
-    border-radius: 20px;
-    padding: 20px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 40%;
-    align-items: center;
-}
-
 #deleteFunctionButton {
     background-color: red;
     color: white;
+    width: 50%;
 }
 
 #saveParametersButton:hover {

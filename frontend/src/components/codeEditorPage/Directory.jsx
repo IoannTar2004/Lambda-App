@@ -16,7 +16,7 @@ export const Directory = ({level, currentPath, content}) => {
    useEffect(() => {
      if (action?.type === "rename" && action?.path === currentPath)
        setIsRenaming(true)
-     if ((action?.type === "createFile" || action?.type === "createFolder") && action?.dir === currentPath)
+     if (["createFile", "createFolder", "uploadFile"].includes(action?.type) && action?.dir === currentPath)
        setOpened(true)
      if (action?.type === "createFolder" && action?.path === currentPath) {
        setName("")
@@ -108,10 +108,7 @@ export const Directory = ({level, currentPath, content}) => {
 
   return (
       <div className={styles.directory} style={{marginLeft: `${level === 0 ? 0 : 20}px`}}>
-        <div className={styles.directoryHeader} onClick={() => {
-          setOpened(!opened)
-          // console.log(currentPath)
-        }} onContextMenu={openContextMenu}>
+        <div className={styles.directoryHeader} onClick={() => setOpened(!opened)} onContextMenu={openContextMenu}>
           <div>
             {opened ?
               <span><FaFolderOpen className={"icon"} size={"20px"}/></span> :

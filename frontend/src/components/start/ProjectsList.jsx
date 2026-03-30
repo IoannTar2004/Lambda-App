@@ -1,7 +1,11 @@
 import styles from "../../css/StartPage.module.css"
 import {useEffect, useState} from "react";
+import {useNavigate} from "react-router";
 
 export const ProjectsList = () => {
+
+  const navigate = useNavigate()
+
   const [projects, setProjects] = useState([])
 
   useEffect(() => {
@@ -12,10 +16,14 @@ export const ProjectsList = () => {
     setProjects(newProjects)
   }, []);
 
+  const createProject = () => {
+    navigate("create-project")
+  }
+
   return (
       <div className={styles.projectsBox}>
         <h3>Проекты</h3>
-        <button id={styles.createProject}>Создать проект</button>
+        <button className={styles.createProject} onClick={createProject}>Создать проект</button>
         <div className={styles.projectsListBox}>
           {projects.length > 0 ? (projects.map((e) =>
               <div className={styles.projectElement}>
