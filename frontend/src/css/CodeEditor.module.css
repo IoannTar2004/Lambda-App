@@ -69,6 +69,24 @@
     cursor: pointer;
 }
 
+.uploadFile {
+    position: relative;
+    cursor: pointer;
+}
+
+.uploadFile input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.uploadFile input:hover {
+    cursor: pointer;
+}
+
 #save-code {
     padding: 10px;
     font-size: 15px;

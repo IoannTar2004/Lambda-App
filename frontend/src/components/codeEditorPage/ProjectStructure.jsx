@@ -76,6 +76,7 @@ export const ProjectStructure = () => {
       prevState.push(newFile)
       return prevState
     })
+
     setAction({type: "createFile", path: newFile, dir: path})
     setContextMenu(null)
   }
@@ -88,6 +89,30 @@ export const ProjectStructure = () => {
       return prevState
     })
     setAction({type: "createFolder", path: newFolder, dir: path})
+    setContextMenu(null)
+  }
+
+  const handleUploadFile = (event) => {
+    const file = event.target.files[0]
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const content = e.target.result
+      console.log(content)
+    }
+    reader.onerror = () => {
+      alert("Ошибка при чтении")
+    }
+
+    reader.readAsText(file)
+    event.target.value = '';
+
+    setAction({type: "createFile", dir: contextMenu.path})
+
+    setBaseStructure(prevState => {
+      prevState.push(contextMenu.path + file.name)
+      return prevState
+    })
     setContextMenu(null)
   }
 
@@ -134,8 +159,9 @@ export const ProjectStructure = () => {
                 </div>
               )}
 
-              <div className={styles.actionBox}>
+              <div className={styles.actionBox + " " + styles.uploadFile} onChange={handleUploadFile}>
                 <RiFileUploadFill className={".icon"}/> Загрузить файл
+                <input type={"file"}/>
               </div>
               <div className={styles.actionBox} onClick={handleCreateFile}>
                 <RiFileAddFill className={".icon"}/> Создать файл
