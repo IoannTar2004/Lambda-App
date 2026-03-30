@@ -57,27 +57,40 @@ export const ProjectStructure = () => {
       let deleteStructure = [...baseStructure]
       const index = deleteStructure.findIndex(path => checkPath(path, parent))
       deleteStructure[index] = parent
-      deleteStructure = deleteStructure.filter((path, i) => {
-        return i === index || !checkPath(path, deletePath)
-      })
+      deleteStructure = deleteStructure.filter((path, i) => i === index || !checkPath(path, deletePath))
       setBaseStructure(deleteStructure)
     }
     else {
       setBaseStructure(prevState => {
-        return prevState.filter((path) => {
-          console.log(path, deletePath)
-          return !checkPath(path, deletePath)
-        })
+        return prevState.filter((path) => !checkPath(path, deletePath))
       })
     }
 
     setContextMenu(null)
   }
 
-  const handleDeleteFileClick = () => {
-    setBaseStructure(prevState => prevState.filter(path => path !== contextMenu.path))
+  const handleCreateFile = () => {
+    const path = contextMenu.path === projectName + "/" ? "" : contextMenu.path
+    const newFile= path + ".new"
+    setBaseStructure(prevState => {
+      prevState.push(newFile)
+      return prevState
+    })
+    setAction({type: "createFile", path: newFile, dir: path})
     setContextMenu(null)
   }
+
+  const handleCreateFolder = () => {
+    const path = contextMenu.path === projectName + "/" ? "" : contextMenu.path
+    const newFolder = path + "new/"
+    setBaseStructure(prevState => {
+      prevState.push(newFolder)
+      return prevState
+    })
+    setAction({type: "createFolder", path: newFolder, dir: path})
+    setContextMenu(null)
+  }
+
 
   const clearAction = () => setAction(null)
 
@@ -97,7 +110,7 @@ export const ProjectStructure = () => {
     action,
     clearAction,
     setContextMenu,
-    updatePath
+    updatePath,
   }), [action]);
 
   if (loading)
@@ -124,10 +137,10 @@ export const ProjectStructure = () => {
               <div className={styles.actionBox}>
                 <RiFileUploadFill className={".icon"}/> Загрузить файл
               </div>
-              <div className={styles.actionBox}>
+              <div className={styles.actionBox} onClick={handleCreateFile}>
                 <RiFileAddFill className={".icon"}/> Создать файл
               </div>
-              <div className={styles.actionBox}>
+              <div className={styles.actionBox} onClick={handleCreateFolder}>
                 <FaFolderPlus className={".icon"}/> Создать папку
               </div>
 

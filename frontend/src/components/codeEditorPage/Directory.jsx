@@ -13,10 +13,16 @@ export const Directory = ({level, currentPath, content}) => {
   const [name, setName] = useState(currentPath.split("/").slice(-2, -1))
   const [isRenaming, setIsRenaming] = useState(false)
 
-  useEffect(() => {
-    if (action?.type === "rename" && action?.path === currentPath) {
-      setIsRenaming(true)
-    }
+   useEffect(() => {
+     if (action?.type === "rename" && action?.path === currentPath)
+       setIsRenaming(true)
+     if ((action?.type === "createFile" || action?.type === "createFolder") && action?.dir === currentPath)
+       setOpened(true)
+     if (action?.type === "createFolder" && action?.path === currentPath) {
+       setName("")
+       setIsRenaming(true)
+     }
+
   }, [action, currentPath]);
 
   const buildStructure = () => {
@@ -33,9 +39,19 @@ export const Directory = ({level, currentPath, content}) => {
         childrenMap.get(name).push(null)
       }
     }
+    const sortedKeys = Array.from(childrenMap.keys()).sort((a, b) => {
+      const aIsDir = a.endsWith('/');
+      const bIsDir = b.endsWith('/');
 
-    return Array.from(childrenMap.entries()).map(([name, childContent]) => {
-      name = name[name.length - 1] === "/" ? name.slice(0, name.length - 1) : name
+      if (aIsDir && !bIsDir) return -1;
+      if (!aIsDir && bIsDir) return 1;
+
+      return a.localeCompare(b);
+    });
+
+    return sortedKeys.map(key => {
+      const childContent = childrenMap.get(key);
+      const name = key.endsWith('/') ? key.slice(0, -1) : key;
       if (name === "")
         return null
 

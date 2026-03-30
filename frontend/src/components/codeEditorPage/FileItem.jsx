@@ -25,9 +25,15 @@ export const FileItem = ({currentPath}) => {
   }
 
   useEffect(() => {
-    if (action?.type === "rename" && action?.path === currentPath) {
-      setIsRenaming(true)
+    if (action?.path === currentPath) {
+      if (action?.type === "rename")
+        setIsRenaming(true)
+      else if (action?.type === "createFile") {
+        setName("")
+        setIsRenaming(true)
+      }
     }
+
   }, [action, currentPath]);
 
   const finishRename = () => {
@@ -44,9 +50,11 @@ export const FileItem = ({currentPath}) => {
 
     const parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
     const newPath = parentPath ? `${parentPath}/${name}` : name;
+
     updatePath(currentPath, newPath);
 
     setIsRenaming(false);
+    clearAction()
   }
 
   const handleOnBlur = () => {
