@@ -3,6 +3,7 @@ import {ProjectsList} from "./ProjectsList.jsx";
 import {ProjectDescription} from "./ProjectDescription.jsx";
 
 export const StartPage = () => {
+
   const projectDescription = [
       {
         language: "Python",
@@ -19,9 +20,9 @@ export const StartPage = () => {
   ]
 
   return (
-      <div className={styles.content}>
-        <ProjectsList />
-        <ProjectDescription projectDescription={projectDescription} />
-      </div>
+    <div className={styles.content}>
+      <ProjectsList />
+      <ProjectDescription projectDescription={projectDescription} />
+    </div>
   )
 }

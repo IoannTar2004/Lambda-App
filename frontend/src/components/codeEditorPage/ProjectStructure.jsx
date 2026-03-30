@@ -4,11 +4,10 @@ import {Directory} from "./Directory.jsx";
 import {RiFileAddFill, RiFileUploadFill} from "react-icons/ri";
 import {FaFolderPlus} from "react-icons/fa";
 import {MdDelete, MdDriveFileRenameOutline} from "react-icons/md";
-import {useParams} from "react-router";
+import {useLocation, useNavigate, useParams} from "react-router";
 
 
 export const ProjectContext = createContext(null)
-//["a/ab/f1.py", "a/ab/f2.py", "a/f1.py", "b/f1.py", "c/", "a1.js", "a2.py"]
 export const ProjectStructure = () => {
 
   const {id} = useParams()
@@ -19,9 +18,8 @@ export const ProjectStructure = () => {
   const [action, setAction] = useState(null)
 
   useEffect(() => {
-    const structure = Array.from({ length: 50 }, (_, i) => `${i}.js`)
     setProjectName("my_project")
-    setBaseStructure(structure)
+    setBaseStructure(["a/ab/f1.py", "a/ab/f2.py", "a/f1.py", "b/f1.py", "c/", "a1.js", "a2.py"])
     setLoading(false)
   }, []);
 

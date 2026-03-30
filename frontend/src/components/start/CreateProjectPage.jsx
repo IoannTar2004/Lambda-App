@@ -2,7 +2,7 @@ import functionStyles from "../../css/Function.module.css";
 import styles from "../../css/StartPage.module.css"
 import {useState} from "react";
 
-export const CreateProject = () => {
+export const CreateProjectPage = () => {
 
   const [error, setError] = useState()
   const [name, setName] = useState("")

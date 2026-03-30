@@ -44,6 +44,10 @@ export const FunctionsListPage = () => {
     navigate("../projects/1")
   }
 
+  const createFunction = () => {
+    navigate("create")
+  }
+
   return (
       <div className={styles.content}>
         <h2 className={styles.projectName}>{"Проектт ".repeat(8)}</h2>
@@ -56,7 +60,7 @@ export const FunctionsListPage = () => {
             <input id={styles.searchInput} placeholder={"Поиск"} onChange={searchFunctions}/>
           </div>
           <div className={styles.createFunctionButtonBox}>
-            <button id={styles.createFunction}>Создать функцию</button>
+            <button id={styles.createFunction} onClick={createFunction}>Создать функцию</button>
           </div>
         </div>
 

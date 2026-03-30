@@ -10,7 +10,8 @@ import {EditPage} from "./functions/EditPage.jsx";
 import {DeletePage} from "./functions/DeletePage.jsx";
 import {LogsPage} from "./logs/LogsPage.jsx";
 import {CodeEditorPage} from "./codeEditorPage/CodeEditorPage.jsx";
-import {CreateProject} from "./start/CreateProject.jsx";
+import {CreateProjectPage} from "./start/CreateProjectPage.jsx";
+import {CreateFunctionPage} from "./functions/CreateFunctionPage.jsx";
 
 const baseURL = "/app/project123456/services/lambda"
 
@@ -20,9 +21,10 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path={baseURL} element={<VkCloudTemplate />}>
           <Route path={"start"} element={<StartPage />}></Route>
-          <Route path={"start/create-project"} element={<CreateProject />}></Route>
+          <Route path={"start/create-project"} element={<CreateProjectPage />}></Route>
           <Route path={"functions"} element={<FunctionsListPage />}></Route>
           <Route path={"functions/:id"} element={<FunctionPage />}></Route>
+          <Route path={"functions/create"} element={<CreateFunctionPage />}></Route>
           <Route path={"functions/:id/edit"} element={<EditPage />}></Route>
           <Route path={"functions/:id/delete"} element={<DeletePage />}></Route>
           <Route path={"functions/:id/logs/:log-id"} element={<LogsPage />}></Route>

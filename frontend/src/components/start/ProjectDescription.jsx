@@ -1,9 +1,11 @@
 import styles from "../../css/StartPage.module.css"
 import {useNavigate} from "react-router";
+import {useContext} from "react";
 
 export const ProjectDescription = ({projectDescription}) => {
 
   const navigate = useNavigate()
+
   const languagesColors = {
     Python: "#3275AA",
     Java: "orangered",
@@ -24,12 +26,18 @@ export const ProjectDescription = ({projectDescription}) => {
     return linearGradient
   }
 
+  const projectStructure = ["a/ab/f1.py", "a/ab/f2.py", "a/f1.py", "b/f1.py", "c/", "a1.js", "a2.py"]
+
   const openFunctionPage = () => {
     navigate("../functions")
   }
 
   const openProject = () => {
-    navigate("../projects/1")
+    navigate("../projects/1", {
+      state: {
+        structure: projectStructure
+      }
+    })
   }
 
   return (

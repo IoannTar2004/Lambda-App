@@ -32,7 +32,7 @@
     box-sizing: border-box;
     border-bottom: 2px solid black;
 
-    max-width: 100%;           /* не больше родителя */
+    max-width: 100%;
     word-break: break-all;
 }
 
@@ -180,4 +180,54 @@
 
 #deleteFunctionButton:hover {
     background-color: #7a0808;
+}
+
+.newFunctionBox {
+    width: 60%;
+    min-height: 100%;
+    background-color: #efebeb;
+    box-shadow: 10px 10px 10px 1px #868282;
+    padding: 5px 30px;
+    box-sizing: border-box;
+    border-radius: 30px;
+}
+
+.newFunctionBox form {
+    display: grid;
+    grid-template-columns: auto 1fr;  /* левая колонка под ширину текста, правая — всё остальное */
+    gap: 30px;
+    align-items: center;
+}
+
+.newFunctionBox h1 {
+    margin-bottom: 50px;
+    font-size: 40px;
+}
+
+.newFunctionBox form label {
+    font-size: 23px;
+    padding-right: 10px;
+}
+
+.newFunctionBox form input {
+    font-size: 20px;
+}
+
+.newFunctionBox form select {
+    width: 50%;
+    font-size: 20px;
+}
+
+.newFunctionBox form input[type=number] {
+    width: 15%;
+}
+
+.specialParameter {
+    text-decoration: underline;
+}
+
+.newFunctionBox form button[type=submit] {
+    background-color: blue;
+    color: white;
+    width: 180px;
 }

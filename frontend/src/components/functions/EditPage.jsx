@@ -15,11 +15,11 @@ export const EditPage = () => {
           <input value={functionData.handler}/>
 
           <div className={styles.head}>Размер памяти</div>
-          <select name="cars" id="cars">
-            <option value="volvo">128 МБ</option>
-            <option value="volvo">256 МБ</option>
-            <option value="saab">512 МБ</option>
-            <option value="mercedes">1024 МБ</option>
+          <select>
+            <option value={"128"}>128 МБ</option>
+            <option value="256">256 МБ</option>
+            <option value="512">512 МБ</option>
+            <option value="1024">1024 МБ</option>
           </select>
 
           <div className={styles.head}>Таймаут (в секундах)</div>
