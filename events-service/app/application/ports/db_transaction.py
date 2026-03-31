@@ -25,8 +25,6 @@ class DBTransaction(ABC):
         pass
 
     @abstractmethod
-
-    @abstractmethod
     async def insert(self, domain):
         pass
 

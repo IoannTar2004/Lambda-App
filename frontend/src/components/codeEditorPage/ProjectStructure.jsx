@@ -1,26 +1,40 @@
 import styles from "../../css/CodeEditor.module.css";
-import {createContext, use, useEffect, useMemo, useState} from "react";
+import {createContext, use, useContext, useEffect, useMemo, useState} from "react";
 import {Directory} from "./Directory.jsx";
 import {RiFileAddFill, RiFileUploadFill} from "react-icons/ri";
 import {FaFolderPlus} from "react-icons/fa";
 import {MdDelete, MdDriveFileRenameOutline} from "react-icons/md";
 import {useLocation, useNavigate, useParams} from "react-router";
+import {HTTPMethods, httpRequest, httpRequestFormData} from "../../utils/requests.js";
+import {FileContext} from "./CodeEditorPage.jsx";
 
 
 export const ProjectContext = createContext(null)
 export const ProjectStructure = () => {
 
   const {id} = useParams()
-  const [loading, setLoading] = useState(true)
+  const {currentFile, setCurrentFile} = useContext(FileContext)
+  const [isLoading, setIsLoading] = useState(true)
   const [projectName, setProjectName] = useState("")
   const [baseStructure, setBaseStructure] = useState([])
   const [contextMenu, setContextMenu] = useState(null)
   const [action, setAction] = useState(null)
 
   useEffect(() => {
-    setProjectName("my_project")
-    setBaseStructure(["a/ab/f1.py", "a/ab/f2.py", "a/f1.py", "b/f1.py", "c/", "a1.js", "a2.py"])
-    setLoading(false)
+    httpRequest(HTTPMethods.GET, "/api/events/project/get-project", {projectId: id})
+        .then(e => {
+          const project = e.data
+          setProjectName(project.projectName)
+          httpRequest(HTTPMethods.GET, "/api/code/user-files/listdir-all", {
+            projectId: id,
+            path: ""
+          }).then(e => {
+            const getStructure = e.data.map(e => e.key.split("/").slice(2).join("/"))
+            setBaseStructure(getStructure)
+            setIsLoading(false)
+          })
+        })
+
   }, []);
 
   useEffect(() => {
@@ -34,6 +48,7 @@ export const ProjectStructure = () => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [contextMenu]);
 
+  //TODO реализовать переименование
   const handleRenameClick = () => {
     setAction({type: "rename", path: contextMenu.path})
     setContextMenu(null)
@@ -43,26 +58,21 @@ export const ProjectStructure = () => {
     return path === prefix || prefix.endsWith("/") && path.startsWith(prefix)
   }
 
-  const handleDeleteDirectoryClick = () => {
+  const handleDeleteClick = () => {
     const deletePath = contextMenu.path
-    const split = deletePath.split("/")
-    const last = split[split.length - 1] === "" ? 2 : 1
-    const parent = split.slice(0, split.length - last).join("/") + "/"
-    const countParent = baseStructure.reduce((acc, path) => acc + (checkPath(path, parent) ? 1 : 0), 0)
-    const countDeletePath = baseStructure.reduce((acc, path) => acc + (checkPath(path, deletePath) ? 1 : 0), 0)
-
-    if (countParent === countDeletePath) {
-      let deleteStructure = [...baseStructure]
-      const index = deleteStructure.findIndex(path => checkPath(path, parent))
-      deleteStructure[index] = parent
-      deleteStructure = deleteStructure.filter((path, i) => i === index || !checkPath(path, deletePath))
-      setBaseStructure(deleteStructure)
-    }
-    else {
+    const deleteKeys = baseStructure.filter((path) => checkPath(path, deletePath))
+    httpRequest(HTTPMethods.DELETE, "/api/code/user-files/delete", {
+      projectId: id,
+      keys: deleteKeys
+    }).then(() => {
+      if (checkPath(currentFile.name, contextMenu.path))
+        setCurrentFile(null)
       setBaseStructure(prevState => {
         return prevState.filter((path) => !checkPath(path, deletePath))
       })
-    }
+
+      // console.log(checkPath(currentFile.name, contextMenu.name))
+    })
 
     setContextMenu(null)
   }
@@ -95,9 +105,15 @@ export const ProjectStructure = () => {
   const handleUploadFile = (event) => {
     const file = event.target.files[0]
     const path = getPathNoProject(contextMenu.path) + file.name
-
     const reader = new FileReader()
+    console.log(contextMenu.path)
     reader.onload = (e) => {
+      httpRequestFormData("/api/code/user-files/upload-file", {
+        projectId: id,
+        file: file,
+        directory: contextMenu.path
+      }).then(console.log)
+
       const content = e.target.result
       setAction({type: "uploadFile", dir: contextMenu.path, path: path, text: content})
     }
@@ -139,7 +155,7 @@ export const ProjectStructure = () => {
     updatePath,
   }), [action]);
 
-  if (loading)
+  if (isLoading)
     return (
         <div className={styles.projectStructureBox}>
           <span className={"loader"}></span>
@@ -154,7 +170,7 @@ export const ProjectStructure = () => {
 
         {contextMenu?.type === "Directory" && (
             <div className={styles.contextMenu} style={{top: contextMenu.y, left: contextMenu.x}}>
-              {contextMenu.path !== projectName + "/" && (
+              {contextMenu.path !== "" && (
                 <div className={styles.actionBox} onClick={handleRenameClick}>
                   <MdDriveFileRenameOutline className={".icon"}/> Переименовать
                 </div>
@@ -171,8 +187,8 @@ export const ProjectStructure = () => {
                 <FaFolderPlus className={".icon"}/> Создать папку
               </div>
 
-              {contextMenu.path !== projectName + "/" && (
-                <div className={styles.actionBox} onClick={handleDeleteDirectoryClick}>
+              {contextMenu.path !== "" && (
+                <div className={styles.actionBox} onClick={handleDeleteClick}>
                   <MdDelete className={".icon"}/> Удалить
                 </div>
               )}
@@ -185,7 +201,7 @@ export const ProjectStructure = () => {
               <div className={styles.actionBox} onClick={handleRenameClick}>
                 <MdDriveFileRenameOutline className={".icon"}/> Переименовать
               </div>
-              <div className={styles.actionBox} onClick={handleDeleteDirectoryClick}>
+              <div className={styles.actionBox} onClick={handleDeleteClick}>
                 <MdDelete className={".icon"}/> Удалить
               </div>
             </div>

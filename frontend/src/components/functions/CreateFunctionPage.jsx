@@ -55,7 +55,7 @@ export const CreateFunctionPage = () => {
             </select>
 
             <label>Таймаут (в секундах) </label>
-            <input type={"number"} max={300} min={1} />
+            <input type={"number"} value={300} max={300} min={1} />
 
             <button type={"submit"}>Создать</button>
           </form>

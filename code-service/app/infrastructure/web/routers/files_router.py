@@ -6,12 +6,12 @@ from starlette.responses import StreamingResponse
 
 from application.usecase.files_operations_usecase import FilesOperationsUseCase
 
-files_router = APIRouter(prefix="/api/file", tags=["File (Admin and Communication roles only)"])
+files_router = APIRouter(prefix="/api/code/file", tags=["File (Admin and Communication roles only)"])
 
 @files_router.post("/upload-file")
 async def upload_file(request: Request, file: UploadFile,
                       bucket: str = Form(max_length=64), directory: str = Form(max_length=256)):
-    files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code, request.app.state.cache)
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)
     await files_operations_usecase.upload(bucket, file, directory)
     return {"success": True}
 

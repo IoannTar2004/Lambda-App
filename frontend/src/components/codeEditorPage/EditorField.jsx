@@ -4,58 +4,59 @@ import axios from "axios";
 import styles from "../../css/CodeEditor.module.css";
 import {FileContext} from "./CodeEditorPage.jsx";
 import {languages} from "../../utils/languages.js";
+import {HTTPMethods, httpRequest} from "../../utils/requests.js";
+import {useParams} from "react-router";
 
 export const EditorField = () => {
 
-  const {currentContent, setCurrentContent} = useContext(FileContext)
+  const {id} = useParams()
+  const {currentFile, setCurrentFile} = useContext(FileContext)
   const [fileCache, setFileCache] = useState(new Map())
-  const [currentFile, setCurrentFile] = useState("")
   const editorRef = useRef(null);
 
   useEffect(() => {
-    if (!editorRef.current || !currentContent.name) return
-    console.log(currentContent)
+    if (!editorRef.current || !currentFile) return
 
-    const name = currentContent.name
-    if (currentContent.upload)
-      editorRef.current.setValue(currentContent.upload)
-    else  {
-      if (!fileCache.has(name)) {
-        // запрос с сервера
-        editorRef.current.setValue("print('hello')")
-      }
+    const name = currentFile.name
+
+    if (currentFile.upload)
+      editorRef.current.setValue(currentFile.upload)
+
+    else if (!fileCache.has(name)) {
+      httpRequest(HTTPMethods.GET, "/api/code/user-files/download-file", {
+        projectId: id,
+        path: name
+      }).then((e) => {
+        setFileCache(prevState => {
+          prevState.set(name, true)
+          return prevState;
+        });
+        editorRef.current.setValue(e.data)
+      })
     }
 
     setFileCache(prevState => {
-        prevState.set(name, true)
-        return prevState;
-      });
+      prevState.set(name, true)
+      return prevState;
+    });
 
-  }, [currentContent.name]);
-
-  const saveCode = () => {
-    axios.post("/api/code/save-code",
-        {
-            filename: "script.py",
-            code: editorRef.current.getValue(),
-        }).then(() => console.log("ok")).catch(console.error)
-  }
-
+  }, [currentFile]);
 
   const editorOnMountEvent = (e) => {
     editorRef.current = e
   }
+
   return (
-      <div className={styles.editorField}>
+      <div className={styles.editorField} style={{display: currentFile ? "block" : "none"}}>
         <header>
-          {currentContent.name}
+          {currentFile?.name}
           <button>Сохранить</button>
         </header>
         <Editor width={"100%"}
-                path={currentContent.name}
+                path={currentFile?.name}
                 defaultValue={""} theme="vs-dark"
                 onMount={editorOnMountEvent}
-                language={languages[currentContent.name.split(".").pop()] || ""}
+                language={languages[currentFile?.name.split(".").pop()]?.toLowerCase() || ""}
                 options={{
                   fontFamily: "Consolas, 'Courier New', monospace",
                   fontSize: 17,

@@ -43,14 +43,10 @@ class S3Service(Storage):
 
                 yield chunk
 
-    async def delete(self, bucket: str | None, path: str) -> None:
+    async def delete(self, bucket: str | None, keys: list[str]) -> None:
+        delete_objects = [{"Key": k} for k in keys]
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
-            await s3_client.delete_object(Bucket=bucket,
-                                          Key=path)
-
-    async def delete_objects(self, bucket: str | None, list_object: list[str]) -> None:
-        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
-            await s3_client.delete_objects(Bucket=bucket, Delete={"Objects": list_object})
+            await s3_client.delete_objects(Bucket=bucket, Delete={"Objects": delete_objects, 'Quiet': True})
 
     async def exists(self, bucket: str | None, path: str) -> bool:
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:

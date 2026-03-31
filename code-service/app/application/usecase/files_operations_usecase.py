@@ -9,17 +9,17 @@ from infrastructure.web.dto.user_files.listdir_dto import ListdirDto
 
 
 class FilesOperationsUseCase:
-    def __init__(self, storage: Storage, cache: Cache=None):
+    def __init__(self, storage: Storage):
         self.storage = storage
-        self.cache = cache
 
     async def upload(self, bucket: str, file: UploadFile, directory: str):
         data = file.file.read()
+        directory = directory[:-1] if directory.endswith("/") else directory
         await self.storage.upload(bucket, directory + "/" + file.filename, data)
 
-    async def download(self, bucket: str, filename: str):
-        if await self.storage.exists(bucket, filename):
-            return self.storage.download(bucket, filename)
+    async def download(self, bucket: str, path: str):
+        if await self.storage.exists(bucket, path):
+            return self.storage.download(bucket, path)
         raise HTTPException(status_code=404, detail="File not found")
 
     async def listdir(self, bucket: str, path: str):
@@ -33,5 +33,10 @@ class FilesOperationsUseCase:
             } for file in files]
         )
 
-    async def delete(self, bucket: str, path: str):
-        await self.storage.delete(bucket, path)
+    async def listdir_all(self, bucket: str, path: str):
+        return await self.storage.recursive_listdir(bucket, path)
+
+    async def delete(self, bucket: str, keys: list[str]):
+        for i in range(0, len(keys), 1000):
+            chunk = keys[i:i + 1000]
+            await self.storage.delete(bucket, chunk)

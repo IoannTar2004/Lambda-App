@@ -8,15 +8,15 @@ export const FileContext = createContext(null)
 
 export const CodeEditorPage = () => {
 
-  const [currentContent, setCurrentContent] = useState({name: "", upload: null})
+  const [currentFile, setCurrentFile] = useState(null)
 
-  const contextCurrentContent = useMemo(() => ({
-    currentContent,
-    setCurrentContent
-  }), [currentContent]);
+  const contextCurrentFile = useMemo(() => ({
+    currentFile: currentFile,
+    setCurrentFile: setCurrentFile
+  }), [currentFile]);
 
   return (
-      <FileContext.Provider value={contextCurrentContent}>
+      <FileContext.Provider value={contextCurrentFile}>
         <div className={styles.content}>
           <ProjectStructure />
           <EditorField />

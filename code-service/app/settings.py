@@ -23,6 +23,12 @@ class Settings(BaseSettings):
 
     USER_CODE_ARCHIVE_PATH: str
 
+    JWT_SECRET_KEY:str
+    JWT_SECRET_ALGORITHM: str
+    JWT_SECRET_EXPIRES_SECONDS: int
+
+    COMMUNICATION_TOKEN: str
+
     class Config:
         env_file = Path(__file__).parent.parent / os.getenv("ENV_FILE", ".env")
 

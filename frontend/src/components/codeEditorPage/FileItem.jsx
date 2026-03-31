@@ -4,17 +4,20 @@ import {languageIcons} from "../functions/LanguageIcons.jsx";
 import {useContext, useEffect, useRef, useState} from "react";
 import {ProjectContext} from "./ProjectStructure.jsx";
 import {FileContext} from "./CodeEditorPage.jsx";
+import {httpRequest, httpRequestFormData} from "../../utils/requests.js";
+import {useParams} from "react-router";
 
 export const FileItem = ({currentPath}) => {
 
   const extension = currentPath.split(".").pop()
   const correctNamePattern = /^[а-яА-Я\w.-]+$/
 
+  const {id} = useParams()
   const { action, clearAction, setContextMenu, updatePath } = useContext(ProjectContext);
   const [name, setName] = useState(currentPath.split("/").pop())
   const [isRenaming, setIsRenaming] = useState(false)
   const [uploadBuffer, setUploadBuffer] = useState(null)
-  const {currentContent, setCurrentContent} = useContext(FileContext)
+  const {currentFile, setCurrentFile} = useContext(FileContext)
 
   const openContextMenu = (e) => {
     e.preventDefault()
@@ -54,9 +57,24 @@ export const FileItem = ({currentPath}) => {
 
     const parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
     const newPath = parentPath ? `${parentPath}/${name}` : name;
+    if (action?.type === "createFile") {
+      const createdFile = new File([""], name, { type: 'text/plain' });
+
+      httpRequestFormData("/api/code/user-files/upload-file", {
+        projectId: id,
+        file: createdFile,
+        directory: parentPath
+      }).then(() => {
+        setCurrentFile({name: newPath, upload: " "})
+        updatePath(currentPath, newPath);
+        setIsRenaming(false);
+        clearAction()
+      })
+
+      return;
+    }
 
     updatePath(currentPath, newPath);
-
     setIsRenaming(false);
     clearAction()
   }
@@ -78,7 +96,7 @@ export const FileItem = ({currentPath}) => {
   }
 
   const handleOnClick = () => {
-    setCurrentContent({name: name, upload: uploadBuffer})
+    setCurrentFile({name: currentPath, upload: uploadBuffer})
     setUploadBuffer(null)
   }
 

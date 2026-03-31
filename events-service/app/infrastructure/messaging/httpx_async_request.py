@@ -7,7 +7,7 @@ from infrastructure.config.consul import get_service_url
 
 class HttpxAsyncRequest(AsyncRequest):
 
-    async def get(self, endpoint: str | None, service_name: str | None, params: dict) -> dict:
+    async def get(self, endpoint: str | None, service_name: str | None, params: dict, headers = None) -> dict:
         url = await get_service_url(service_name) + endpoint
 
         async with httpx.AsyncClient() as client:
@@ -15,7 +15,8 @@ class HttpxAsyncRequest(AsyncRequest):
             response.raise_for_status()
             return response.json()
 
-    async def get_stream(self, endpoint: str | None, service_name: str | None, params: dict, chunk_size: int = 1024 *1024)\
+    async def get_stream(self, endpoint: str | None, service_name: str | None, params: dict, chunk_size: int = 1024 *1024,
+                         headers = None)\
             -> AsyncGenerator[Any, Any]:
         url = await get_service_url(service_name) + endpoint
 
@@ -25,14 +26,15 @@ class HttpxAsyncRequest(AsyncRequest):
                 async for chunk in response.aiter_bytes(chunk_size=chunk_size):
                     yield chunk
 
-    async def post(self, endpoint: str | None, service_name: str | None, body: dict) -> Any:
+    async def post(self, endpoint: str | None, service_name: str | None, json: dict = None,
+                   data: dict = None, files: dict = None, headers = None) -> Any:
         url = await get_service_url(service_name) + endpoint
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=body)
+            response = await client.post(url, json=json, data=data, files=files, headers=headers)
             response.raise_for_status()
             return response.json()
 
-    async def delete(self, endpoint: str | None, service_name: str | None, body: dict) -> Any:
+    async def delete(self, endpoint: str | None, service_name: str | None, body: dict, headers = None) -> Any:
         url = await get_service_url(service_name) + endpoint
         async with httpx.AsyncClient() as client:
             response = await client.request("DELETE", url, json=body)

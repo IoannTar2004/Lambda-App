@@ -13,11 +13,7 @@ class Storage(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, bucket: str | None, path: str) -> None:
-        pass
-
-    @abstractmethod
-    async def delete_objects(self, bucket: str | None, list_object: list) -> None:
+    async def delete(self, bucket: str | None, keys: list) -> None:
         pass
 
     @abstractmethod

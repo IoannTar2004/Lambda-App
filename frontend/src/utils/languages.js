@@ -1,4 +1,5 @@
 export const languages = {
-  ".py": "python",
-  ".js": "JavaScript"
+  "py": "Python",
+  "java": "Java",
+  "js": "JavaScript"
 }

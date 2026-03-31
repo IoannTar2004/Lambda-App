@@ -3,11 +3,15 @@ import {FaFolder, FaFolderOpen} from "react-icons/fa";
 import {useContext, useEffect, useState} from "react";
 import {FileItem} from "./FileItem.jsx";
 import {ProjectContext} from "./ProjectStructure.jsx";
+import {httpRequestFormData} from "../../utils/requests.js";
+import {useParams} from "react-router";
+import {isReservedName} from "../../utils/reservedFiles.js";
 
 export const Directory = ({level, currentPath, content}) => {
 
   const correctNamePattern = /^[а-яА-Я\w.-]+$/
 
+  const {id} = useParams()
   const [opened, setOpened] = useState(level === 0)
   const { action, clearAction, setContextMenu, updatePath } = useContext(ProjectContext);
   const [name, setName] = useState(currentPath.split("/").slice(-2, -1))
@@ -30,6 +34,9 @@ export const Directory = ({level, currentPath, content}) => {
     for (let path of content) {
       const split = path.split("/")
       const name = split[0] + (split.length > 1 ? "/" : "")
+
+      if (isReservedName(name)) continue
+
       if (!childrenMap.has(name))
         childrenMap.set(name, [])
       if (split.length > 1) {
@@ -69,7 +76,7 @@ export const Directory = ({level, currentPath, content}) => {
     e.stopPropagation()
     setContextMenu({x: e.clientX,
       y: e.clientY,
-      path: currentPath,
+      path: level > 0 ? currentPath : "",
       type: "Directory"}
     )
   }
@@ -91,9 +98,19 @@ export const Directory = ({level, currentPath, content}) => {
 
     split[split.length - 2] = name
     const newPath = split.join("/");
-    updatePath(currentPath, newPath);
 
-    setIsRenaming(false);
+    if (action?.type === "createFolder") {
+      const createdFile = new File([""], ".dir", { type: 'text/plain' });
+      httpRequestFormData("/api/code/user-files/upload-file", {
+        projectId: id,
+        file: createdFile,
+        directory: newPath
+      }).then(() => {
+        updatePath(currentPath, newPath)
+        setIsRenaming(false);
+        clearAction()
+      })
+    }
   }
 
   const handleKeyDown = (e) => {
