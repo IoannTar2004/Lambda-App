@@ -6,7 +6,7 @@ class CreateFunctionCommand:
 
     name: str
     project_id: int
-    language: str
+    environment: str
     function_path: str
     function_name: str
     memory_size: int

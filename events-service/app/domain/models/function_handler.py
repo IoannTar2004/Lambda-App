@@ -9,8 +9,8 @@ class FunctionHandler:
     project_version: int
     function_path: str
     function_name: str
-    memory_size: int
-    timeout: int
+    memory_size: int = 512
+    timeout: int = 5
 
     id: int | None = None
     relations : dict = field(default_factory=dict)

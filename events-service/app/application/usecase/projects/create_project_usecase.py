@@ -20,7 +20,7 @@ class CreateProjectUsecase:
             if exist_project:
                 raise HTTPException(status_code=409, detail="Project already exists")
 
-            project = Project(user_id, project_name, 1)
+            project = Project(user_id, project_name)
             project = await tx.insert(project)
 
         return {

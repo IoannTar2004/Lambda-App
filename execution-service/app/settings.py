@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
 
+    JWT_SECRET_KEY: str
+    JWT_SECRET_ALGORITHM: str
+    COMMUNICATION_TOKEN: str
+
     class Config:
         env_file = Path(__file__).parent.parent / os.getenv("ENV_FILE", ".env")
 

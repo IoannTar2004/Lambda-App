@@ -16,7 +16,7 @@ class CreateFunctionUseCase:
         self.db_transaction = db_transaction
         self.specific_function = specific_function
 
-    async def execute(self, user_id: int, data: CreateFunctionCommand):
+    async def execute(self, user_id: int, service: str, data: CreateFunctionCommand):
         async with self.db_transaction as tx:
             project: Project = await tx.get(Project, data.project_id)
             if not project:
@@ -25,10 +25,11 @@ class CreateFunctionUseCase:
                 raise HTTPException(status_code=403, detail="Project doesn't belong to user")
 
             function = Function(user_id=user_id,
+                                service=service,
                                 name=data.name,
                                 project_version=project.version_number,
                                 project_id=data.project_id,
-                                language=data.language,
+                                environment=data.environment,
                                 )
             function = await tx.insert(function)
 

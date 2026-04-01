@@ -18,7 +18,7 @@ class ZipProjectUsecase:
 
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
             files = await self.storage.recursive_listdir(settings.S3_USER_CODE_BUCKET,
-                                                         f"{data.user_id}/{data.project_name}")
+                                                         f"{data.user_id}/{data.project_id}")
             if not files:
                 raise HTTPException(status_code=404, detail="Prefix is not found")
 

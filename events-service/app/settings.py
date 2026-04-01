@@ -28,7 +28,6 @@ class Settings(BaseSettings):
 
     JWT_SECRET_KEY: str
     JWT_SECRET_ALGORITHM: str
-
     COMMUNICATION_TOKEN: str
 
     class Config:

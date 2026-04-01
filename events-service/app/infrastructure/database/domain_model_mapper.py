@@ -2,6 +2,7 @@ from dataclasses import asdict
 
 from bidict import bidict
 
+from domain.models.execution_log import ExecutionLog
 from domain.models.function_handler import FunctionHandler
 from domain.models.project import Project
 from domain.models.function import Function
@@ -13,7 +14,8 @@ DOMAIN_MODEL_MAPPING = bidict({
     Function: FunctionModel,
     FunctionHandler: FunctionHandlerModel,
     Project: ProjectModel,
-    S3Function: S3FunctionModel
+    S3Function: S3FunctionModel,
+    ExecutionLog: ExecutionLogModel
 })
 
 def model_to_domain(model, relations_to_extract: list[str] | None = None):

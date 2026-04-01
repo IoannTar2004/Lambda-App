@@ -8,6 +8,7 @@
 }
 
 .logsField {
+    position: relative;
     width: 90%;
     flex: 1;
     background-color: black;

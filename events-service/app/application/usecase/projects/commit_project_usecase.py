@@ -6,6 +6,7 @@ from application.ports.db_transaction import DBTransaction
 from domain.models.function_handler import FunctionHandler
 from domain.models.project import Project
 from domain.models.function import Function
+from settings import settings
 
 
 class CommitProjectUseCase:
@@ -25,11 +26,11 @@ class CommitProjectUseCase:
             project.version_number += 1
             await tx.update(project)
 
-            for f_id, value in data["functions"].items():
-                function_list = await tx.get_by_filters(Function, _joins=['handler'], id=f_id, user_id=user_id)
-                if not function_list:
-                    raise HTTPException(status_code=400, detail="Function not found")
-                function: Function = function_list[0]
+            function_list = await tx.get_by_filters(Function, _joins=['handler'], project_id=data["project_id"],
+                                                    user_id=user_id)
+
+            update_handlers_dict = data["functions"]
+            for function in function_list:
                 handler: FunctionHandler = function.relations["handler"]
                 if not handler:
                     raise HTTPException(status_code=404, detail="Handler not found")
@@ -38,15 +39,21 @@ class CommitProjectUseCase:
                 await tx.update(function)
                 new_handler = FunctionHandler(function_id=function.id,
                                               project_version=function.project_version,
-                                              function_path=value["function_path"],
-                                              function_name=value["function_name"],
                                               memory_size=handler.memory_size,
-                                              timeout=handler.timeout)
+                                              timeout=handler.timeout,
+                                              function_path=handler.function_path,
+                                              function_name=handler.function_name)
+
+                if function.id in update_handlers_dict:
+                    new_handler.function_path = update_handlers_dict[function.id]["function_path"]
+                    new_handler.function_name = update_handlers_dict[function.id]["function_name"]
+
                 await tx.insert(new_handler)
 
-            await self.async_req.post("/api/zip/zip-project", "code-service", {
+            await self.async_req.post("/api/code/zip/zip-project", "code-service", {
                 "user_id": project.user_id,
                 "project_id": project.id,
-                "project_name": project.project_name,
                 "version_number": project.version_number
+            }, headers={
+                "Authorization": settings.COMMUNICATION_TOKEN
             }) # TODO заменить все на Kafka

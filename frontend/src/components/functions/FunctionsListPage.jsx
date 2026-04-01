@@ -2,27 +2,19 @@ import styles from "../../css/FunctionsList.module.css"
 import {useEffect, useState} from "react";
 import {FunctionsList} from "./FunctionsList.jsx";
 import {useNavigate} from "react-router";
+import {HTTPMethods, httpRequest} from "../../utils/requests.js";
+
+let allFunctions = []
 
 export const FunctionsListPage = () => {
 
-  let allFunctions = []
-
-  for (let i = 0; i < 10; i++) {
-      allFunctions[i] = {
-        id: i,
-        name: "Функция " + i,
-        service: "Хранилище S3 " + i,
-        handlerPath: `test_script_${i}.py`,
-        handler: "print_message" + i
-    }
-  }
-
-  const [displayedFunctions, setDisplayedFunctions] = useState([])
+  const [displayedFunctions, setDisplayedFunctions] = useState(null)
   const navigate = useNavigate()
 
   const searchFunctions = (e) => {
     const input = e.target.value
     if (!input) {
+      console.log(allFunctions)
       setDisplayedFunctions(allFunctions)
       return
     }
@@ -37,7 +29,11 @@ export const FunctionsListPage = () => {
   }
 
   useEffect(() => {
-    setDisplayedFunctions(allFunctions)
+    httpRequest(HTTPMethods.GET, "/api/events/functions/get-all")
+        .then((e) => {
+          allFunctions = e.data
+          setDisplayedFunctions(e.data)
+        })
   }, []);
 
   const openProject = () => {

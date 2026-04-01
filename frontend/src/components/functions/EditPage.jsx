@@ -3,7 +3,7 @@ import {useLocation} from "react-router";
 export const EditPage = () => {
 
   const location = useLocation()
-  const functionData = location.state.functionData
+  const functionData = location.state.description
 
   return (
       <div className={styles.modalContent}>

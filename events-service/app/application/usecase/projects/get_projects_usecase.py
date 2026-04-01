@@ -21,11 +21,11 @@ class GetProjectsUsecase:
 
             return project
 
-    async def get_list(self, user_id: int):
+    async def get_all(self, user_id: int):
         async with self.db_transaction as tx:
             projects = await tx.get_by_filters(Project, user_id=user_id)
 
             if projects and user_id != projects[0].user_id:
-                raise HTTPException(status_code=403, detail="Project doesn't belong to this user")
+                raise HTTPException(status_code=403, detail="Projects don't belong to this user")
 
             return [{"project_id": p.id, "project_name": p.project_name} for p in projects]

@@ -5,6 +5,7 @@ from application.ports.db_transaction import DBTransaction
 from domain.models.function_handler import FunctionHandler
 from domain.models.project import Project
 from domain.models.function import Function
+from settings import settings
 
 
 class RollbackProjectUsecase:
@@ -20,8 +21,8 @@ class RollbackProjectUsecase:
             if not project_list:
                 raise HTTPException(status_code=404, detail="Function does not exist")
             project: Project = project_list[0]
-            if project.version_number == 1:
-                raise HTTPException(status_code=409, detail="Cannot rollback. Version number is 1")
+            if project.version_number == 0:
+                raise HTTPException(status_code=409, detail="Cannot rollback. Version number is 0")
 
             prev_version = project.version_number
             project.version_number -= 1
@@ -38,8 +39,10 @@ class RollbackProjectUsecase:
                 await tx.update(function)
                 await tx.delete(handler)
 
-            await self.async_req.delete("/api/zip/delete-version", "code-service", {
+            await self.async_req.delete("/api/code/zip/delete-version", "code-service", {
                 "user_id": project.user_id,
                 "project_id": project.id,
                 "version_number": prev_version
+            } ,headers={
+                "Authorization": settings.COMMUNICATION_TOKEN
             }) # TODO заменить на kafka

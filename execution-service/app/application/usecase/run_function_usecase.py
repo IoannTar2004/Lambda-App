@@ -30,6 +30,7 @@ class RunFunctionUsecase:
         self.cache = cache
 
     async def execute(self, function_meta):
+        print(function_meta)
         project_id = function_meta["project_id"]
         function_id = function_meta["function_id"]
         user_id = function_meta["user_id"]
@@ -55,7 +56,7 @@ class RunFunctionUsecase:
             nonlocal process
             command = self._get_docker_command(container_name, script_path, target_dir, function_meta["function_path"],
                                                function_name, json.dumps(function_meta["message"]),
-                                               language=function_meta["language"])
+                                               environment=function_meta["environment"])
             process = subprocess.Popen(
                     command,
                     stdout=subprocess.PIPE,
@@ -88,8 +89,10 @@ class RunFunctionUsecase:
 
         tmpfile = tempfile.NamedTemporaryFile(dir=target_dir.parent, suffix=".zip", delete=False)
         try:
-            async for chunk in self.async_req.get_stream("/api/file/download-file", "code-service",
-                                                         {"bucket": "code-archives", "path": storage_archive_path}):
+            async for chunk in self.async_req.get_stream(
+                    "/api/code/file/download-file",
+                    "code-service",
+                    params={"bucket": "code-archives", "path": storage_archive_path}):
                 tmpfile.write(chunk)
 
             tmpfile.flush()
@@ -100,17 +103,15 @@ class RunFunctionUsecase:
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
                 raise HTTPException(status_code=404, detail="File not found")
-        except httpx.ReadTimeout as e:
-            tmpfile.close()
-            raise e
 
         finally:
+            tmpfile.close()
             if os.path.exists(tmpfile.name):
                 os.remove(tmpfile.name)
 
     def _get_docker_command(self, name, script_path, target_dir, function_path, function_name,
-                            *args, language :str = "python"):
-        if language == "python":
+                            *args, environment :str = "python"):
+        if environment == "Python 3":
             return [
                 "docker", "run",
                 "--name", name,
@@ -154,12 +155,12 @@ class RunFunctionUsecase:
 
         file_obj = io.BytesIO(json.dumps(logs, ensure_ascii=False).encode("utf-8"))
         file_obj.seek(0)
-        await self.async_req.post("/api/file/upload-file", "code-service", data={
+        await self.async_req.post("/api/code/file/upload-file", "code-service", data={
             "bucket": "function-logs",
             "directory": f"{user_id}/{function_id}",
         }, files={
             "file": (run_id + ".json", file_obj, "application/json")
-        })
+        }, headers={"A": settings.COMMUNICATION_TOKEN})
 
         await self.log_stream.delete(self._logs_key_f(user_id, run_id))
         await self.cache.zrem(self._run_function_f(user_id), run_id)

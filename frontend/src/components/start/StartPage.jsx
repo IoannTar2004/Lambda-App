@@ -11,7 +11,7 @@ export const StartPage = () => {
 
   useEffect(() => {
     // httpRequest(HTTPMethods.GET, "/api/code/get-jwt-token").then(e => {
-    //   const token = e.data["access_token"]
+    //   const token = e.data.accessToken
     //   if (token) {
     //     localStorage.setItem("accessToken", `Bearer ${token}`)
     //     console.log(localStorage.getItem("accessToken"))

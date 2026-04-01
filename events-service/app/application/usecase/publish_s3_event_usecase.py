@@ -37,7 +37,7 @@ class PublishS3EventUsecase:
                 message_with_metadata = {
                     "user_id": function.user_id,
                     "function_id": function.id,
-                    "language": function.language,
+                    "environment": function.environment,
                     "project_id": function.project_id,
                     "project_version": handler.project_version,
                     "function_path": handler.function_path,

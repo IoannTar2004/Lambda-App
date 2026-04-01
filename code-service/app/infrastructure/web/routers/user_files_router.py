@@ -53,3 +53,9 @@ async def delete(data: DeleteFilesDto, request: Request):
     files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)
     await files_operations_usecase.delete(settings.S3_USER_CODE_BUCKET, data.keys)
     return {"success": True}
+
+@user_files_router.get("/download-log")
+async def download_log(project_id: int, log_id: str, request: Request):
+    user_id = request.state.credentials["user_id"]
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)
+    file = await files_operations_usecase.download(settings.S3_, f"{user_id}/{project_id}/{log_id}")

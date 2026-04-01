@@ -1,14 +1,16 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from datetime import datetime
 
 
 @dataclass
 class Function:
     user_id: int
     name: str
+    service: str
     project_version: int
     project_id: int
-    language: str
+    environment: str
 
+    created_at: datetime = field(default_factory=datetime.now)
     id: int | None = None
     relations : dict = field(default_factory=dict)

@@ -15,10 +15,9 @@ zip_router = APIRouter(prefix="/api/code/zip", tags=["Zip versions"])
 
 @zip_router.post("/zip-project")
 async def zip_project(data: ZipProjectDto, request: Request):
-    print(data)
-    # storage = request.app.state.s3_code
-    # zip_project_usecase = ZipProjectUsecase(storage)
-    # await zip_project_usecase.execute(to_command(ZipProjectCommand, data))
+    storage = request.app.state.s3_code
+    zip_project_usecase = ZipProjectUsecase(storage)
+    await zip_project_usecase.execute(to_command(ZipProjectCommand, data))
 
     return {"success": True}
 

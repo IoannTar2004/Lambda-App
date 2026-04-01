@@ -11,7 +11,7 @@ class HttpxAsyncRequest(AsyncRequest):
         url = await get_service_url(service_name) + endpoint
 
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, params=params)
+            response = await client.get(url, params=params, headers=headers)
             response.raise_for_status()
             return response.json()
 
@@ -21,7 +21,7 @@ class HttpxAsyncRequest(AsyncRequest):
         url = await get_service_url(service_name) + endpoint
 
         async with httpx.AsyncClient() as client:
-            async with client.stream("GET", url, params=params) as response:
+            async with client.stream("GET", url, params=params, headers=headers) as response:
                 response.raise_for_status()
                 async for chunk in response.aiter_bytes(chunk_size=chunk_size):
                     yield chunk
@@ -34,9 +34,11 @@ class HttpxAsyncRequest(AsyncRequest):
             response.raise_for_status()
             return response.json()
 
-    async def delete(self, endpoint: str | None, service_name: str | None, body: dict, headers = None) -> Any:
+    async def delete(self, endpoint: str | None, service_name: str | None, json: dict, headers = None) -> Any:
         url = await get_service_url(service_name) + endpoint
+        print(url)
+        print(json)
         async with httpx.AsyncClient() as client:
-            response = await client.request("DELETE", url, json=body)
+            response = await client.request("DELETE", url, json=json, headers=headers)
             response.raise_for_status()
             return response.json()

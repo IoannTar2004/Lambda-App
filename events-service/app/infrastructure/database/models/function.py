@@ -1,14 +1,14 @@
 from enum import Enum
 
-from sqlalchemy import BigInteger, ForeignKey
+from sqlalchemy import BigInteger, ForeignKey, func, DateTime
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.testing.schema import mapped_column
 
 from infrastructure.database.base import Base
 
 
-class LanguageEnum(str, Enum):
-    PYTHON = "python"
+class EnvironmentEnum(str, Enum):
+    PYTHON_3 = "Python 3"
 
 class FunctionModel(Base):
 
@@ -17,9 +17,11 @@ class FunctionModel(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(BigInteger)
     name: Mapped[str] = mapped_column(nullable=False)
+    service: Mapped[str] = mapped_column(nullable=False)
     project_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
     project_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('projects.id'))
-    language: Mapped[LanguageEnum]
+    environment: Mapped[EnvironmentEnum]
+    created_at = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     handler: Mapped["FunctionHandlerModel"] = (
         relationship(back_populates="function",
@@ -29,3 +31,5 @@ class FunctionModel(Base):
                                     FunctionModel.project_version == FunctionHandlerModel.project_version
                                 )"""))
     project: Mapped["ProjectModel"] = relationship(back_populates="functions")
+
+    logs: Mapped[list["ExecutionLogModel"]] = relationship(back_populates="function")

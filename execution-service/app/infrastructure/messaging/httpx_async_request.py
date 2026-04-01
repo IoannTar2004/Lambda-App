@@ -4,38 +4,48 @@ import httpx
 
 from application.ports.async_request import AsyncRequest
 from infrastructure.config.consul import get_service_url
+from settings import settings
+
 
 class HttpxAsyncRequest(AsyncRequest):
 
-    async def get(self, endpoint: str | None, service_name: str | None, params: dict) -> dict:
+    def __init__(self):
+        self._base_headers = {
+            "Authorization": settings.COMMUNICATION_TOKEN
+        }
+
+    async def get(self, endpoint: str | None, service_name: str | None, params: dict, headers=None) -> dict:
         url = await get_service_url(service_name) + endpoint
 
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, params=params)
+            response = await client.get(url, params=params, headers=self._base_headers | (headers or {}))
             response.raise_for_status()
             return response.json()
 
-    async def get_stream(self, endpoint: str | None, service_name: str | None, params: dict, chunk_size: int = 1024 *1024)\
+    async def get_stream(self, endpoint: str | None, service_name: str | None, params: dict,
+                         chunk_size: int = 1024 * 1024, headers=None) \
             -> AsyncGenerator[Any, Any]:
         url = await get_service_url(service_name) + endpoint
 
         async with httpx.AsyncClient() as client:
-            async with client.stream("GET", url, params=params) as response:
+            async with client.stream("GET", url, params=params, headers=self._base_headers | (headers or {})) as response:
                 response.raise_for_status()
                 async for chunk in response.aiter_bytes(chunk_size=chunk_size):
                     yield chunk
 
     async def post(self, endpoint: str | None, service_name: str | None, json: dict = None,
-                   data: dict = None, files: dict = None) -> Any:
+                   data: dict = None, files: dict = None, headers=None) -> Any:
         url = await get_service_url(service_name) + endpoint
+        print(self._base_headers | (headers or {}))
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=json, data=data, files=files)
+            response = await client.post(url, json=json, data=data, files=files,
+                                         headers=self._base_headers | (headers or {}))
             response.raise_for_status()
             return response.json()
 
-    async def delete(self, endpoint: str | None, service_name: str | None, body: dict) -> Any:
+    async def delete(self, endpoint: str | None, service_name: str | None, body: dict, headers=None) -> Any:
         url = await get_service_url(service_name) + endpoint
         async with httpx.AsyncClient() as client:
-            response = await client.request("DELETE", url, json=body)
+            response = await client.request("DELETE", url, json=body, headers=self._base_headers | (headers or {}))
             response.raise_for_status()
             return response.json()

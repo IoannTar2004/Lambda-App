@@ -9,5 +9,5 @@ class DeleteVersionUsecase:
         self.storage = storage
 
     async def execute(self, data: ZipProjectCommand):
-        await self.storage.delete(settings.S3_CODE_ARCHIVES_BUCKET, f"{data.user_id}/{data.project_id}"
-                                                                   f"/v{data.version_number}.zip")
+        await self.storage.delete(settings.S3_CODE_ARCHIVES_BUCKET, [f"{data.user_id}/{data.project_id}"
+                                                                   f"/v{data.version_number}.zip"])

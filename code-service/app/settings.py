@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     MAX_FILE_SIZE_MB: str
     S3_USER_CODE_BUCKET: str
     S3_CODE_ARCHIVES_BUCKET: str
+    S3_FUNCTION_LOGS_BUCKET: str
 
     CONSUL_HOST: str
     CONSUL_PORT: str

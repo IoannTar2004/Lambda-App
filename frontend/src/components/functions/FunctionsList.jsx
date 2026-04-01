@@ -1,6 +1,8 @@
 import styles from "../../css/FunctionsList.module.css";
 import {useNavigate} from "react-router";
-import {languageIcons} from "./LanguageIcons.jsx";
+import {languageExtensionIcons} from "./LanguageIcons.jsx";
+import {useEffect} from "react";
+import {HTTPMethods, httpRequest} from "../../utils/requests.js";
 
 export const FunctionsList = ({functions}) => {
 
@@ -15,6 +17,9 @@ export const FunctionsList = ({functions}) => {
     })
   }
 
+  if (!functions)
+    return <div className={styles.functionsListBox}><span className={"loader dark"}></span></div>
+
   return (
       <div className={styles.functionsListBox}>
           {functions.map(e => {
@@ -25,16 +30,13 @@ export const FunctionsList = ({functions}) => {
 
                     <div className={styles.info}><span>Сервис: </span>{e.service}</div>
                     <div className={styles.info}><span>Путь к обработчику: </span>
-                      {languageIcons[extension]} {e.handlerPath}
+                      {languageExtensionIcons[extension]} {e.handlerPath}
                     </div>
                     <div className={styles.info}><span>Обработчик: </span> {e.handler}</div>
                   </div>
               )
-
             }
-
           )}
-
         </div>
   )
 }

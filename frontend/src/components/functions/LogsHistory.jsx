@@ -3,37 +3,36 @@ import {useEffect, useState} from "react";
 import BTree from "sorted-btree";
 import {getStringDate} from "../../utils/formats.js";
 import {data, useNavigate} from "react-router";
+import {HTTPMethods, httpRequest} from "../../utils/requests.js";
 
-export const LogsHistory = () => {
-  const [logsHistory, setLogsHistory] = useState(new BTree(undefined, () => {}))
+export const LogsHistory = ({id}) => {
+  const [logsHistory, setLogsHistory] = useState(null)
   const navigate= useNavigate()
 
   useEffect(() => {
-    const data = Array.from({ length: 10 }, (_, i) => ({
-      runId: Math.random().toString(16).substring(2, 32), // Уникальный ID
-      lastStart: Date.now() - i * 1000,
-      totalTime: "0.025 мс",
-      isActive: false
-    }));
-
     const tree = new BTree(undefined, (a, b) => {
-      const timeDiff = b.lastStart - a.lastStart;
-      if (timeDiff !== 0) return timeDiff;
+      const timeDiff = b["createdAt"] - a["createdAt"]
+      if (timeDiff !== 0) return timeDiff
 
-      if (a.runId === b.runId) return 0;
-      return a.runId > b.runId ? 1 : -1;
+      if (a["id"] === b["id"]) return 0
+      return a["id"] > b["id"] ? 1 : -1
     });
-    data.forEach(log => {
-      tree.set(log, true)
-    })
 
-    setLogsHistory(tree)
+    httpRequest(HTTPMethods.GET, "/api/events/execution_logs/get-all", {functionId: id})
+        .then((e) => {
+          const logs = e.data.map((e) => ({...e, isActive: false}))
+          logs.forEach(log => {
+            tree.set(log, true)
+          })
+          setLogsHistory(tree)
+        })
+
   }, []);
 
-  const openLogs = (data) => {
-    navigate(`logs/${data.runId}`, {
+  const openLogs = (logData) => {
+    navigate(`logs/` + logData.id, {
       state: {
-        runData: data
+        logData: logData
       }
     })
   }
@@ -41,25 +40,26 @@ export const LogsHistory = () => {
   return (
       <div className={styles.logsBox}>
         <h3>История выполнений</h3>
-        {logsHistory.keysArray().map(e => {
-          return (
-            <div className={styles.logElement} onClick={() => openLogs(e)}>
-              <div className={styles.id}>{e.runId}</div>
-              <div className={styles.info}>Последний запуск: {getStringDate(e.lastStart)}</div>
-              {
-                e.isActive ? (
-                  <div className={styles.isActive}>
-                    <div className={styles.activeCircle}></div>
-                    Выполняется
-                  </div>
-                ) :
-                (
-                    <div className={styles.info}>Время выполнения: {e.totalTime}</div>
-                )
-              }
-          </div>
-          )
-        })}
+        {!logsHistory ? <div className={styles.logsBox}><span className={"loader dark"}></span></div> :
+          Array.from(logsHistory.keys()).map(e => {
+            return (
+              <div className={styles.logElement} onClick={() => openLogs(e)}>
+                <div className={styles.id}>{e.id}</div>
+                <div className={styles.info}>Время запуска: {getStringDate(e.createdAt, true)}</div>
+                {
+                  e.isActive ? (
+                    <div className={styles.isActive}>
+                      <div className={styles.activeCircle}></div>
+                      Выполняется
+                    </div>
+                  ) :
+                  (
+                      <div className={styles.info}>Время выполнения: {e.executionTime} мс</div>
+                  )
+                }
+            </div>
+            )
+          })}
          </div>
   )
 }

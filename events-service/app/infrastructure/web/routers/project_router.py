@@ -9,7 +9,7 @@ from application.usecase.projects.rollback_project_usecase import RollbackProjec
 from application.usecase.projects.commit_project_usecase import CommitProjectUseCase
 from infrastructure.database.sqlalchemy_db_transaction import SqlAlchemyDBTransaction
 from infrastructure.messaging.httpx_async_request import HttpxAsyncRequest
-from infrastructure.web.dto.commit_function_dto import CommitProjectDTO
+from infrastructure.web.dto.commit_project_dto import CommitProjectDTO
 from infrastructure.web.dto.create_project_dto import CreateProjectDto
 
 project_router = APIRouter(prefix="/api/events/project", tags=["Project"])
@@ -25,7 +25,7 @@ async def get_project(project_id: Annotated[int, Field(ge=1)], request: Request)
 async def get_projects(request: Request):
     user_id = request.state.credentials["user_id"]
     get_projects_usecase = GetProjectsUsecase(SqlAlchemyDBTransaction())
-    return await get_projects_usecase.get_list(user_id)
+    return await get_projects_usecase.get_all(user_id)
 
 @project_router.post("/create")
 async def create_project(data: CreateProjectDto, request: Request):
@@ -35,10 +35,11 @@ async def create_project(data: CreateProjectDto, request: Request):
     return await CreateProjectUsecase(async_req, db_transaction).execute(user_id, data.project_name)
 
 @project_router.post("/commit-project")
-async def commit_project(data: CommitProjectDTO):
+async def commit_project(data: CommitProjectDTO, request: Request):
+    user_id = request.state.credentials["user_id"]
     async_req = HttpxAsyncRequest()
     db_transaction = SqlAlchemyDBTransaction()
-    await CommitProjectUseCase(async_req, db_transaction).execute(300904, data.model_dump())
+    await CommitProjectUseCase(async_req, db_transaction).execute(user_id, data.model_dump())
     return {"success": True}
 
 @project_router.delete("/rollback")

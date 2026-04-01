@@ -27,7 +27,7 @@ createRoot(document.getElementById('root')).render(
           <Route path={"functions/create"} element={<CreateFunctionPage />}></Route>
           <Route path={"functions/:id/edit"} element={<EditPage />}></Route>
           <Route path={"functions/:id/delete"} element={<DeletePage />}></Route>
-          <Route path={"functions/:id/logs/:log-id"} element={<LogsPage />}></Route>
+          <Route path={"functions/:id/logs/:log_id"} element={<LogsPage />}></Route>
           <Route path={"projects/:id"} element={<CodeEditorPage />}></Route>
         </Route>
       </Routes>

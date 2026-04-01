@@ -1,6 +1,6 @@
 import styles from "../../css/CodeEditor.module.css";
 import {FaFile} from "react-icons/fa";
-import {languageIcons} from "../functions/LanguageIcons.jsx";
+import {languageExtensionIcons} from "../functions/LanguageIcons.jsx";
 import {useContext, useEffect, useRef, useState} from "react";
 import {ProjectContext} from "./ProjectStructure.jsx";
 import {FileContext} from "./CodeEditorPage.jsx";
@@ -104,7 +104,7 @@ export const FileItem = ({currentPath}) => {
       <div className={styles.directory} style={{marginLeft: `20px`}}>
         <div className={styles.directoryHeader} onContextMenu={openContextMenu} onClick={handleOnClick}>
           <div>
-            <span>{languageIcons[extension] || <FaFile className={"icon"}/>} </span>
+            <span>{languageExtensionIcons[extension] || <FaFile className={"icon"}/>} </span>
             {isRenaming ?
               <input className={styles.rename} autoFocus value={name} size={name.length || 1} onKeyDown={handleKeyDown}
                      onChange={(e) => {setName(e.target.value)}}
