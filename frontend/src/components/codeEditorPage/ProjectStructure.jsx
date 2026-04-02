@@ -112,7 +112,7 @@ export const ProjectStructure = () => {
         projectId: id,
         file: file,
         directory: contextMenu.path
-      }).then(console.log)
+      }).then()
 
       const content = e.target.result
       setAction({type: "uploadFile", dir: contextMenu.path, path: path, text: content})

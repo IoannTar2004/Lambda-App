@@ -1,7 +1,7 @@
 import redis.asyncio as redis_asyncio
 
 
-class Redis:
+class RedisConnection:
 
     def __init__(self):
         self.redis = None
@@ -12,4 +12,4 @@ class Redis:
     async def close(self):
         await self.redis.close()
 
-redis_connection = Redis()
+redis_connection = RedisConnection()

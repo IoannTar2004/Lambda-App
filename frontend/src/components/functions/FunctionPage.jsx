@@ -24,9 +24,9 @@ export const FunctionPage = () => {
     else
       httpRequest(HTTPMethods.GET, "/api/events/functions/get", {functionId: id})
         .then((e) => {
-          console.log(e.data)
           setFunctionDescription(e.data)
         })
+
   }, []);
 
   const editFunction = () => {

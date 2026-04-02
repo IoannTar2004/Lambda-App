@@ -1,12 +1,31 @@
-const padFormatted = (str) => String(str).padStart(2, '0')
+export const getStringDate = (time, includeMilliseconds) => {
+  const date = new Date(time);
 
-export const getStringDate = (isoString, includeMilliSeconds) => {
-  const date = new Date(isoString);
-
-  const formatted = `${date.toLocaleDateString('ru-RU')} в ${date.toLocaleTimeString('ru-RU', {
+  let formatted = `${date.toLocaleDateString('ru-RU')} в ${date.toLocaleTimeString('ru-RU', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    second: '2-digit'
   })}`;
+
+   if (includeMilliseconds) {
+    const ms = String(date.getMilliseconds()).padStart(3, '0');
+    formatted = `${formatted}.${ms}`;  // ← точка, а не двоеточие
+  }
+
+  return formatted;
+}
+
+export const getStringDateLog = (time) => {
+  const date = new Date(time);
+
+  let formatted = `${date.toLocaleDateString('ru-RU')} ${date.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })}`;
+
+  const ms = String(date.getMilliseconds()).padStart(3, '0');
+  formatted = `${formatted}.${ms}`
 
   return formatted;
 }

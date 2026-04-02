@@ -12,7 +12,7 @@ class WebSocketManager(Socket):
         await websocket.accept()
         self.connections[user_id] = websocket
 
-    async def disconnect(self, user_id: int, websocket: WebSocket) -> None:
+    def disconnect(self, user_id: int) -> None:
         self.connections.pop(user_id)
 
     async def send_json(self, user_id: int, message: dict) -> None:

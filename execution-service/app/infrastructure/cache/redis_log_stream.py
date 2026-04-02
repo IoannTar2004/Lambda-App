@@ -8,8 +8,13 @@ class RedisLogStream(LogStream):
     def __init__(self, client: redis_asyncio.Redis):
         self.client = client
 
-    async def add(self, key: str, value: dict) -> str:
-        return await self.client.xadd(key, value)
+    async def add(self, key: str, value: dict, ttl_seconds: int = 0) -> str:
+        result = await self.client.xadd(key, value)
+        await self.client.expire(key, ttl_seconds)
+        return result
+
+    async def publish(self, channel: str, value: str):
+        await self.client.publish(channel, value)
 
     async def read(self, key: str, begin: str = "-", end: str = "+", count=500) -> dict:
         return await self.client.xrange(key, begin, end, count)

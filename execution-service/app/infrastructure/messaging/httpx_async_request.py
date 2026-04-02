@@ -36,7 +36,6 @@ class HttpxAsyncRequest(AsyncRequest):
     async def post(self, endpoint: str | None, service_name: str | None, json: dict = None,
                    data: dict = None, files: dict = None, headers=None) -> Any:
         url = await get_service_url(service_name) + endpoint
-        print(self._base_headers | (headers or {}))
         async with httpx.AsyncClient() as client:
             response = await client.post(url, json=json, data=data, files=files,
                                          headers=self._base_headers | (headers or {}))

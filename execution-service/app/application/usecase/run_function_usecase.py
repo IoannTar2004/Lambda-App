@@ -11,26 +11,25 @@ from pathlib import Path
 
 import httpx
 from fastapi import HTTPException
-from watchfiles import awatch
 
 from application.ports.async_request import AsyncRequest
-from application.ports.cache import Cache
+from application.ports.cache_hash_set import CacheHashSet
 from application.ports.log_stream import LogStream
 from application.ports.socket import Socket
+from application.utils.redis_formats import run_function_f, logs_key_f, pubsub_key_f
 from infrastructure.config.logger_config import logger
 from settings import settings
 
 
 class RunFunctionUsecase:
 
-    def __init__(self, async_req: AsyncRequest, socket: Socket, log_stream: LogStream, cache: Cache):
+    def __init__(self, async_req: AsyncRequest, socket: Socket, log_stream: LogStream, cache: CacheHashSet):
         self.async_req = async_req
         self.socket = socket
         self.log_stream = log_stream
         self.cache = cache
 
     async def execute(self, function_meta):
-        print(function_meta)
         project_id = function_meta["project_id"]
         function_id = function_meta["function_id"]
         user_id = function_meta["user_id"]
@@ -50,8 +49,8 @@ class RunFunctionUsecase:
         process = None
         container_name = f"{user_id}_{run_id}"
 
-        await self.cache.zadd(f"run_function:{user_id}", {run_id: time.time()})
-
+        await self.cache.add(run_function_f(), run_id)
+        start_time = time.time()
         def run_docker():
             nonlocal process
             command = self._get_docker_command(container_name, script_path, target_dir, function_meta["function_path"],
@@ -64,7 +63,7 @@ class RunFunctionUsecase:
                     text=True,
                     encoding="utf-8"
             )
-            future = asyncio.run_coroutine_threadsafe(self._stream_prints(process, user_id, run_id), loop)
+            future = asyncio.run_coroutine_threadsafe(self._stream_prints(process, user_id, run_id, start_time), loop)
             process.wait()
             future.result()
 
@@ -77,8 +76,9 @@ class RunFunctionUsecase:
             logger.info(f"Function {run_id} timed out")
             await self._kill_docker_container(loop, container_name)
 
-        await self._flush_logs(user_id, function_id, run_id)
+        await self._flush_logs(user_id, function_id, run_id, start_time)
         os.remove(lock)
+
 
     async def _download_and_unzip_code(self, target_dir, function_meta):
         storage_archive_path = (f"{function_meta['user_id']}/{function_meta['project_id']}/"
@@ -127,17 +127,12 @@ class RunFunctionUsecase:
 
         return []
 
-    async def _stream_prints(self, process, user_id, run_id):
+    async def _stream_prints(self, process, user_id, run_id, start_time):
         for line in iter(process.stdout.readline, ""):
-            await self._send_logs_to_user(user_id, run_id, line.rstrip()),
-
-    async def _send_logs_to_user(self, user_id: int, run_id: str, text: str):
-        message = {"text": text}
-        id = await self.log_stream.add(self._logs_key_f(user_id, run_id), message)
-        message["id"] = id
-
-        if user_id in self.socket.get_connections():
-            await self.socket.send_json(user_id, message)
+            message = {"id": run_id, "start_time": start_time, "text": line.rstrip(), "type": "log"}
+            id = await self.log_stream.add(logs_key_f(user_id, run_id), message, 30)
+            message["timestamp"] = id
+            await self.log_stream.publish(pubsub_key_f(user_id), json.dumps(message))
 
     async def _kill_docker_container(self, loop, container_name):
         await loop.run_in_executor(
@@ -149,26 +144,34 @@ class RunFunctionUsecase:
             )
         )
 
-    async def _flush_logs(self, user_id, function_id, run_id):
-        logs = await self.log_stream.read(self._logs_key_f(user_id, run_id))
-        logs = [{"id": id, "text": text} for id, text in logs]
+    async def _flush_logs(self, user_id, function_id, run_id, start_time):
+        logs = await self.log_stream.read(logs_key_f(user_id, run_id))
+        logs = [{"timestamp": id, "text": text["text"]} for id, text in logs]
+        execution_time = logs[-1]["text"]
+        logs = logs[:-1]
+
+        last_message = json.dumps({"type": "stop", "start_time": start_time, "id": run_id, "text": execution_time})
+        await self.log_stream.publish(pubsub_key_f(user_id), last_message)
+
+        if user_id in self.socket.get_connections():
+            await self.socket.send_json(user_id, {"id": -1, "run_id": run_id, "text": execution_time})
 
         file_obj = io.BytesIO(json.dumps(logs, ensure_ascii=False).encode("utf-8"))
         file_obj.seek(0)
+        await self.cache.get(run_function_f())
+        await self.cache.remove(run_function_f(), run_id)
+        await self.cache.get(run_function_f())
+
         await self.async_req.post("/api/code/file/upload-file", "code-service", data={
             "bucket": "function-logs",
             "directory": f"{user_id}/{function_id}",
         }, files={
             "file": (run_id + ".json", file_obj, "application/json")
-        }, headers={"A": settings.COMMUNICATION_TOKEN})
+        })
 
-        await self.log_stream.delete(self._logs_key_f(user_id, run_id))
-        await self.cache.zrem(self._run_function_f(user_id), run_id)
-        print("logs", await self.log_stream.read(self._logs_key_f(user_id, run_id)))
-        print("runs", await self.cache.zrange(self._run_function_f(user_id)))
+        await self.async_req.post("/api/events/execution_logs/add-execution-log", "events-service", json={
+            "id": run_id,
+            "function_id": function_id,
+            "execution_time": execution_time
+        })
 
-    def _logs_key_f(self, user_id, run_id):
-        return f"logs:{user_id}:{run_id}"
-
-    def _run_function_f(self, user_id):
-        return f"run_function:{user_id}"

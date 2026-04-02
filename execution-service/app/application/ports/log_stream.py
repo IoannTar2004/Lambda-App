@@ -4,7 +4,11 @@ from abc import ABC, abstractmethod
 class LogStream(ABC):
 
     @abstractmethod
-    async def add(self, key: str, value: dict) -> str:
+    async def add(self, key: str, value: dict, ttl_seconds:int = 0) -> str:
+        pass
+
+    @abstractmethod
+    async def publish(self, channel: str, value: str):
         pass
 
     @abstractmethod
