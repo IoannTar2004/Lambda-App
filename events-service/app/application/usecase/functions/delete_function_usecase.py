@@ -21,11 +21,7 @@ class DeleteFunctionUsecase:
             if not function:
                 raise HTTPException(status_code=404, detail="Function not found")
             if function.user_id != user_id:
-                raise HTTPException(status_code=404, detail="Function doesn't belong to this user")
+                raise HTTPException(status_code=403, detail="Function doesn't belong to this user")
 
+            await self.specific_function.delete(function_id, tx, self.async_req)
             await tx.delete_by_filters(Function, id=function_id)
-            data = {
-                "function_id": function_id,
-                "bucket": function.bucket,
-            }
-            await self.specific_function.delete(data, self.async_req)

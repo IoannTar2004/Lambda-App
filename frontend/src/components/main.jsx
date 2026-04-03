@@ -22,13 +22,13 @@ createRoot(document.getElementById('root')).render(
         <Route path={baseURL} element={<VkCloudTemplate />}>
           <Route path={"start"} element={<StartPage />}></Route>
           <Route path={"start/create-project"} element={<CreateProjectPage />}></Route>
-          <Route path={"functions"} element={<FunctionsListPage />}></Route>
-          <Route path={"functions/:id"} element={<FunctionPage />}></Route>
-          <Route path={"functions/create"} element={<CreateFunctionPage />}></Route>
-          <Route path={"functions/:id/edit"} element={<EditPage />}></Route>
-          <Route path={"functions/:id/delete"} element={<DeletePage />}></Route>
-          <Route path={"functions/:id/logs/:run_id"} element={<LogsPage />}></Route>
-          <Route path={"projects/:id"} element={<CodeEditorPage />}></Route>
+          <Route path={"projects/:projectId/functions"} element={<FunctionsListPage />}></Route>
+          <Route path={"projects/:projectId/functions/:id"} element={<FunctionPage />}></Route>
+          <Route path={"projects/:projectId/functions/create"} element={<CreateFunctionPage />}></Route>
+          <Route path={"projects/:projectId/functions/:id/edit"} element={<EditPage />}></Route>
+          <Route path={"projects/:projectId/functions/:id/delete"} element={<DeletePage />}></Route>
+          <Route path={"projects/:projectId/functions/:id/logs/:run_id"} element={<LogsPage />}></Route>
+          <Route path={"projects/:id/editor"} element={<CodeEditorPage />}></Route>
         </Route>
       </Routes>
     </BrowserRouter>

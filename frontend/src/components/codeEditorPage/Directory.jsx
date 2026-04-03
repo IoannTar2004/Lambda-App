@@ -5,7 +5,7 @@ import {FileItem} from "./FileItem.jsx";
 import {ProjectContext} from "./ProjectStructure.jsx";
 import {httpRequestFormData} from "../../utils/requests.js";
 import {useParams} from "react-router";
-import {isReservedName} from "../../utils/reservedFiles.js";
+import {isReservedFile} from "../../utils/reserved.js";
 
 export const Directory = ({level, currentPath, content}) => {
 
@@ -35,7 +35,7 @@ export const Directory = ({level, currentPath, content}) => {
       const split = path.split("/")
       const name = split[0] + (split.length > 1 ? "/" : "")
 
-      if (isReservedName(name)) continue
+      if (isReservedFile(name)) continue
 
       if (!childrenMap.has(name))
         childrenMap.set(name, [])

@@ -32,7 +32,7 @@ export const FunctionPage = () => {
   const editFunction = () => {
     navigate("edit", {
       state: {
-        functionData: functionData
+        functionDescription: functionDescription
       }
     })
   }
@@ -40,7 +40,7 @@ export const FunctionPage = () => {
   const deleteFunction = () => {
     navigate("delete", {
       state: {
-        functionData: functionData
+        service: functionDescription.service
       }
     })
   }

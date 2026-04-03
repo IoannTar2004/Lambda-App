@@ -7,7 +7,7 @@ class CreateFunctionCommand:
     name: str
     project_id: int
     environment: str
-    function_path: str
-    function_name: str
+    handler_path: str
+    handler: str
     memory_size: int
     timeout: int

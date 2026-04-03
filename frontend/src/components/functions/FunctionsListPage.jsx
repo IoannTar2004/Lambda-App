@@ -1,24 +1,28 @@
 import styles from "../../css/FunctionsList.module.css"
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {FunctionsList} from "./FunctionsList.jsx";
-import {useNavigate} from "react-router";
-import {HTTPMethods, httpRequest} from "../../utils/requests.js";
-
-let allFunctions = []
+import {useLocation, useNavigate, useParams} from "react-router";
+import {HTTPMethods, httpRequest, printError} from "../../utils/requests.js";
 
 export const FunctionsListPage = () => {
 
-  const [displayedFunctions, setDisplayedFunctions] = useState(null)
+  const {projectId} = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
+
+  const [displayedFunctions, setDisplayedFunctions] = useState(null)
+  const [projectName, setProjectName] = useState(null)
+
+  const projectStructure = useRef([])
+  const allFunctions = useRef(null)
 
   const searchFunctions = (e) => {
     const input = e.target.value
     if (!input) {
-      console.log(allFunctions)
-      setDisplayedFunctions(allFunctions)
+      setDisplayedFunctions(allFunctions.current)
       return
     }
-    setDisplayedFunctions(allFunctions.filter(f => {
+    setDisplayedFunctions(allFunctions.current.filter(f => {
       return (
           f.name.toLowerCase().startsWith(input) ||
           f.service.toLowerCase().startsWith(input) ||
@@ -29,24 +33,43 @@ export const FunctionsListPage = () => {
   }
 
   useEffect(() => {
-    httpRequest(HTTPMethods.GET, "/api/events/functions/get-all")
+    if (location?.state?.projectName)
+      setProjectName(location.state.projectName)
+    else
+      httpRequest(HTTPMethods.GET, "/api/events/project/get-project", {projectId: projectId})
+          .then(e => setProjectName(e.data.projectName))
+
+    httpRequest(HTTPMethods.GET, "/api/events/functions/get-all", {projectId: projectId})
         .then((e) => {
-          allFunctions = e.data
+          allFunctions.current = e.data
           setDisplayedFunctions(e.data)
         })
+        .catch(printError)
+
+    httpRequest(HTTPMethods.GET, "/api/code/user-files/listdir-all", {
+      projectId: projectId,
+      path: ""
+    }).then((e) => {
+      const project = e.data
+      projectStructure.current = project.map(e => e.key.split("/").slice(2).join("/"))
+    })
   }, []);
 
   const openProject = () => {
-    navigate("../projects/1")
+    navigate(`../projects/${projectId}/editor`)
   }
 
   const createFunction = () => {
-    navigate("create")
+    navigate("create", {
+      state: {
+        projectStructure: projectStructure.current
+      }
+    })
   }
 
   return (
       <div className={styles.content}>
-        <h2 className={styles.projectName}>{"Проектт ".repeat(8)}</h2>
+        <h2 className={styles.projectName}>{projectName}</h2>
         <div className={styles.openProjectBox}>
           <button id={styles.openProject} onClick={openProject}>Открыть проект</button>
         </div>
@@ -59,8 +82,7 @@ export const FunctionsListPage = () => {
             <button id={styles.createFunction} onClick={createFunction}>Создать функцию</button>
           </div>
         </div>
-
-        <FunctionsList functions={displayedFunctions} />
+          <FunctionsList functions={displayedFunctions} />
       </div>
   )
 }

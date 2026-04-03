@@ -9,9 +9,9 @@ from application.ports.db_transaction import DBTransaction
 class SpecificFunction(ABC):
 
     @abstractmethod
-    async def create(self, function_id: int, data: CreateFunctionCommand, tx: DBTransaction, async_req: AsyncRequest = None):
+    async def create(self, user_id, function_id: int, data: dict, tx: DBTransaction, async_req: AsyncRequest = None):
         pass
 
     @abstractmethod
-    async def delete(self, data: Any, async_req: AsyncRequest = None):
+    async def delete(self, function_id: int, tx: DBTransaction, async_req: AsyncRequest = None):
         pass

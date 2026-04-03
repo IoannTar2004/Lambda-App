@@ -46,8 +46,8 @@ class PublishS3EventUsecase:
                     "environment": function.environment,
                     "revision_id": revision_id,
                     "project_version": handler.project_version,
-                    "function_path": handler.function_path,
-                    "function_name": handler.function_name,
+                    "function_path": handler.handler_path,
+                    "function_name": handler.handler,
                     "memory_size": handler.memory_size,
                     "timeout": handler.timeout,
                     "message": message

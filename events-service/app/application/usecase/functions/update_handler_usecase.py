@@ -18,11 +18,11 @@ class UpdateHandlerUsecase:
               raise HTTPException(status_code=404, detail="Function not found")
           function: Function = functions[0]
           if function.user_id != user_id:
-              raise HTTPException(status_code=404, detail="Function doesn't belong to this user")
+              raise HTTPException(status_code=403, detail="Function doesn't belong to this user")
 
           handler: FunctionHandler = function.relations["handler"]
-          handler.function_path = data.function_path
-          handler.function_name = data.function_name
+          handler.function_path = data.handler_path
+          handler.function_name = data.handler
           handler.memory_size = data.memory_size
           handler.timeout = data.timeout
 

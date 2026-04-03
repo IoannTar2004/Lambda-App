@@ -7,6 +7,7 @@ from pydantic import Field
 from starlette.responses import StreamingResponse
 
 from application.usecase.files_operations_usecase import FilesOperationsUseCase
+from application.usecase.runnable_list_usecase import RunnableListUseCase
 from application.usecase.hard_rollback_usecase import HardRollbackUsecase
 from infrastructure.web.dto.user_files.delete_files_dto import DeleteFilesDto
 from settings import settings
@@ -66,3 +67,8 @@ async def download_log(function_id: int, log_id: str, request: Request):
                              headers={
                                  "Content-Disposition": f'attachment; filename="{log_id}.json"'
                              })
+
+@user_files_router.get("/runnable-list")
+async def runnable_list(project_id: int, path: str, request: Request):
+    user_id = request.state.credentials["user_id"]
+    return await RunnableListUseCase(request.app.state.s3_code).execute(f"{user_id}/{project_id}/{path}")

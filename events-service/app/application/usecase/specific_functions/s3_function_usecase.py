@@ -11,17 +11,19 @@ class S3FunctionUsecase(SpecificFunction):
     def __init__(self, storage_notification: StorageNotification):
         self.storage_notification = storage_notification
 
-    async def create(self, function_id: int, data: CreateS3FunctionCommand, tx: DBTransaction, async_req: AsyncRequest = None):
+    async def create(self, user_id: int, function_id: int, data: dict, tx: DBTransaction, async_req: AsyncRequest = None):
+        bucket_name = f"{user_id}-{data['bucket']}"
         s3_function = S3Function(id=function_id,
-                                 bucket=data.bucket,
-                                 events=data.events,
-                                 prefix=data.prefix,
-                                 suffix=data.suffix)
+                                 bucket=bucket_name,
+                                 events=data["events"],
+                                 prefix=data["prefix"],
+                                 suffix=data["suffix"])
         await tx.insert(s3_function)
         id = f"lambda_{function_id}"
-        await self.storage_notification.add_notification(id, data.bucket, data.events,
-                                                         data.prefix, data.suffix)
+        await self.storage_notification.add_notification(id, bucket_name, data["events"],
+                                                         data["prefix"], data["suffix"])
 
-    async def delete(self, data: dict, async_req: AsyncRequest = None):
-        id = f"lambda_{data['function_id']}"
-        await self.storage_notification.remove_notification(id, data['bucket'])
+    async def delete(self, function_id: int, tx: DBTransaction, async_req: AsyncRequest = None):
+        id = f"lambda_{function_id}"
+        s3_function: S3Function = await tx.get(S3Function, function_id)
+        await self.storage_notification.remove_notification(id, s3_function.bucket)

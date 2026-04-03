@@ -22,7 +22,7 @@ export const FunctionsList = ({functions}) => {
 
   return (
       <div className={styles.functionsListBox}>
-          {functions.map(e => {
+          {functions.length > 0 ?functions.map(e => {
               const extension = e.handlerPath.split('.').pop()
               return (
                   <div className={styles.functionElement} onClick={() => openFunction(e, extension)}>
@@ -36,7 +36,7 @@ export const FunctionsList = ({functions}) => {
                   </div>
               )
             }
-          )}
+          ) : "Создайте свою первую функцию"}
         </div>
   )
 }

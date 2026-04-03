@@ -81,7 +81,6 @@
 
 .logElement {
     width: 80%;
-    /*height: 15%;*/
     border: 3px solid green;
     padding: 10px;
     box-sizing: border-box;
@@ -118,6 +117,7 @@
 }
 
 .modalContent {
+    position: relative;
     flex: 1;
     display: flex;
     justify-content: center;
@@ -186,10 +186,10 @@
 
 .newFunctionBox {
     width: 60%;
-    min-height: 100%;
+    /*min-height: 100%;*/
     background-color: #efebeb;
     box-shadow: 10px 10px 10px 1px #868282;
-    padding: 5px 30px;
+    padding: 1px 30px 20px 30px;
     box-sizing: border-box;
     border-radius: 30px;
 }
@@ -202,8 +202,28 @@
 }
 
 .newFunctionBox h1 {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
     font-size: 40px;
+}
+
+.newFunctionBox .error {
+    height: 20px;
+    width: 100%;
+    font-size: 20px;
+    color: red;
+    font-family: "VK Sans Display SemiBold", serif;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.newFunctionBox form .checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.newFunctionBox form input[type=checkbox] {
+    transform: scale(1.5);
 }
 
 .newFunctionBox form label {
@@ -216,12 +236,16 @@
 }
 
 .newFunctionBox form select {
-    width: 50%;
+    width: 65%;
     font-size: 20px;
 }
 
 .newFunctionBox form input[type=number] {
     width: 15%;
+}
+
+.newFunctionBox .s3Events {
+    width: 70%;
 }
 
 .specialParameter {

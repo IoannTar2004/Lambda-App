@@ -28,8 +28,8 @@ export const ProjectStructure = () => {
           httpRequest(HTTPMethods.GET, "/api/code/user-files/listdir-all", {
             projectId: id,
             path: ""
-          }).then(e => {
-            const getStructure = e.data.map(e => e.key.split("/").slice(2).join("/"))
+          }).then(s => {
+            const getStructure = s.data.map(e => e.key.split("/").slice(2).join("/"))
             setBaseStructure(getStructure)
             setIsLoading(false)
           })

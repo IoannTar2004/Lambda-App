@@ -24,6 +24,10 @@ class CreateFunctionUseCase:
             if project.user_id != user_id:
                 raise HTTPException(status_code=403, detail="Project doesn't belong to user")
 
+            is_function = await tx.get_by_filters(Function, _limit=1, name=data.name, project_id=data.project_id)
+            if is_function:
+                raise HTTPException(status_code=409, detail="Function with this name already exists")
+
             function = Function(user_id=user_id,
                                 service=service,
                                 name=data.name,
@@ -35,13 +39,14 @@ class CreateFunctionUseCase:
 
             function_handler = FunctionHandler(function_id=function.id,
                                                project_version=project.version_number,
-                                               function_path=data.function_path,
-                                               function_name=data.function_name,
+                                               function_path=data.handler_path,
+                                               function_name=data.handler,
                                                memory_size=data.memory_size,
                                                timeout=data.timeout,
                                                )
             await tx.insert(function_handler)
-            await self.specific_function.create(function.id, data, tx, self.async_req)
+
+            await self.specific_function.create(user_id, function.id, data.__dict__, tx, self.async_req)
             return {
                 "function_id": function.id
             }

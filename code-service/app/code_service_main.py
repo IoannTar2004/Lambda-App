@@ -41,11 +41,11 @@ async def health():
     return {"status": "ok"}
 
 @app.get("/api/code/get-jwt-token")
-async def get_jwt_token():
+async def get_jwt_token(user_id: int):
     """Простая реализация получения jwt-токена. Имитация авторизованного пользователя VK Cloud"""
     expire = datetime.datetime.now(timezone.utc) + timedelta(seconds=settings.JWT_SECRET_EXPIRES_SECONDS)
     payload = {
-        "user_id": 300904,
+        "user_id": user_id,
         "exp": expire,
         "iat": datetime.datetime.now(timezone.utc),
         "role": "user",

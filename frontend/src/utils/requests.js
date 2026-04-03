@@ -37,7 +37,7 @@ api.interceptors.request.use(
   error => Promise.reject(error)
 );
 
-export const httpRequest = (method, url, payload={}, headers={}) => {
+export const httpRequest = (method, url, payload={}, headers={}, asParams=false) => {
   const token = localStorage.getItem('accessToken')
 
   const config = {
@@ -50,7 +50,7 @@ export const httpRequest = (method, url, payload={}, headers={}) => {
     }
   }
 
-  if (method === HTTPMethods.GET)
+  if (method === HTTPMethods.GET || asParams)
     config.params = payload
   else
     config.data = payload
@@ -74,6 +74,10 @@ export const httpRequestFormData = (url, payload={}, headers={}) => {
       ...headers
     }
   })
+}
+
+export const printError = (err) => {
+  console.error(err.response)
 }
 
 export const HTTPMethods = {

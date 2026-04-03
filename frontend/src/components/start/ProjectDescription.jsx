@@ -4,7 +4,7 @@ import {useContext, useEffect, useState} from "react";
 import {IoCodeSlash} from "react-icons/io5";
 import {HTTPMethods, httpRequest} from "../../utils/requests.js";
 import {languages} from "../../utils/languages.js";
-import {isReservedName} from "../../utils/reservedFiles.js";
+import {isReservedFile} from "../../utils/reserved.js";
 import {getStringDate} from "../../utils/formats.js";
 
 const projectDescriptionCache = new Map()
@@ -22,10 +22,10 @@ export const ProjectDescription = ({projectData}) => {
     const filesExtension = {}
 
     for (let f of files) {
-      if (isReservedName(f.key.split("/").pop()))
+      if (isReservedFile(f.key.split("/").pop()))
         continue
 
-      lastModified = Math.max(f.lastModified, lastModified)
+      lastModified = Math.max(new Date(f.lastModified).getTime(), lastModified)
       const extension = f.key.split('.').pop()
 
       if (!extension || f.key.endsWith('/')) continue;
@@ -52,6 +52,7 @@ export const ProjectDescription = ({projectData}) => {
     }
     setProjectDescription(data)
     projectDescriptionCache.set(projectData.id, data)
+    console.log(lastModified)
     // const data = new Date(files[0].lastModified).getTime()
 
   }
@@ -96,11 +97,15 @@ export const ProjectDescription = ({projectData}) => {
   }
 
   const openFunctionPage = () => {
-    navigate("../functions")
+    navigate(`../projects/${projectData.id}/functions`, {
+      state: {
+        projectName: projectData.projectName
+      }
+    })
   }
 
   const openProject = () => {
-    navigate("../projects/" + projectData.id)
+    navigate(`../projects/${projectData.id}/editor`)
   }
 
   if (!projectData)
