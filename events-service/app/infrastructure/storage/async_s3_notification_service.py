@@ -49,6 +49,9 @@ class AsyncS3NotificationService(StorageNotification):
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
             configurations = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
             configurations.pop("ResponseMetadata")
+            if "QueueConfigurations" not in configurations:
+                return
+
             configurations["QueueConfigurations"] = [q for q in configurations["QueueConfigurations"] if q["Id"] != id]
             await s3_client.put_bucket_notification_configuration(Bucket=bucket,
                                                                   NotificationConfiguration=configurations)

@@ -185,6 +185,12 @@
     color: white;
 }
 
+#deleteProject {
+    width: 30%;
+    background-color: red;
+    color: white;
+}
+
 #openProject:hover {
     background-color: #7e0707;
 }

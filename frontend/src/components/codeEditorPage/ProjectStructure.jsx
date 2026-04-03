@@ -61,17 +61,17 @@ export const ProjectStructure = () => {
   const handleDeleteClick = () => {
     const deletePath = contextMenu.path
     const deleteKeys = baseStructure.filter((path) => checkPath(path, deletePath))
+    console.log(deleteKeys)
     httpRequest(HTTPMethods.DELETE, "/api/code/user-files/delete", {
       projectId: id,
       keys: deleteKeys
     }).then(() => {
-      if (checkPath(currentFile.name, contextMenu.path))
+      if (currentFile?.name && checkPath(currentFile.name, contextMenu.path))
         setCurrentFile(null)
       setBaseStructure(prevState => {
         return prevState.filter((path) => !checkPath(path, deletePath))
       })
 
-      // console.log(checkPath(currentFile.name, contextMenu.name))
     })
 
     setContextMenu(null)
@@ -106,7 +106,6 @@ export const ProjectStructure = () => {
     const file = event.target.files[0]
     const path = getPathNoProject(contextMenu.path) + file.name
     const reader = new FileReader()
-    console.log(contextMenu.path)
     reader.onload = (e) => {
       httpRequestFormData("/api/code/user-files/upload-file", {
         projectId: id,
@@ -193,9 +192,6 @@ export const ProjectStructure = () => {
 
         {contextMenu?.type === "File" && (
             <div className={styles.contextMenu} style={{top: contextMenu.y, left: contextMenu.x}}>
-              <div className={styles.actionBox} onClick={handleRenameClick}>
-                <MdDriveFileRenameOutline className={".icon"}/> Переименовать
-              </div>
               <div className={styles.actionBox} onClick={handleDeleteClick}>
                 <MdDelete className={".icon"}/> Удалить
               </div>

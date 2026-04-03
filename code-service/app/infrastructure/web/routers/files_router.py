@@ -30,6 +30,12 @@ async def listdir(bucket: str, path: str, request: Request):
     files = await files_operations_usecase.listdir(bucket, path)
     return files
 
+@files_router.get("/listdir-all")
+async def listdir_all(request: Request, bucket: str, path: str = ""):
+    files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)
+    files = await files_operations_usecase.listdir_all(bucket, path)
+    return files
+
 @files_router.delete("/delete-file")
 async def delete_file(bucket: str, path: str, request: Request):
     files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)

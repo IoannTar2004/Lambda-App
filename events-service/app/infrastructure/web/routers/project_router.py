@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request
 from pydantic import Field
 
 from application.usecase.projects.create_project_usecase import CreateProjectUsecase
+from application.usecase.projects.delete_project_usecase import DeleteProjectUsecase
 from application.usecase.projects.get_projects_usecase import GetProjectsUsecase
 from application.usecase.projects.rollback_project_usecase import RollbackProjectUsecase
 from application.usecase.projects.commit_project_usecase import CommitProjectUseCase
@@ -34,6 +35,16 @@ async def create_project(data: CreateProjectDto, request: Request):
     db_transaction = SqlAlchemyDBTransaction()
     return await CreateProjectUsecase(async_req, db_transaction).execute(user_id, data.project_name)
 
+@project_router.delete("/delete")
+async def delete(project_id: int, request: Request):
+    user_id = request.state.credentials["user_id"]
+    async_req = HttpxAsyncRequest()
+    db_transaction = SqlAlchemyDBTransaction()
+    await (DeleteProjectUsecase(async_req, db_transaction, request.app.state.s3_service)
+           .execute(user_id, project_id))
+
+    return {"success": True}
+
 @project_router.post("/commit-project")
 async def commit_project(data: CommitProjectDTO, request: Request):
     user_id = request.state.credentials["user_id"]
@@ -43,7 +54,7 @@ async def commit_project(data: CommitProjectDTO, request: Request):
     return {"success": True}
 
 @project_router.delete("/rollback")
-async def rollback(project_id: Annotated[int, Field(ge=1)], hard: Annotated[bool, Field(default=False)], request: Request):
+async def rollback(project_id: int, hard: Annotated[bool, Field(default=False)], request: Request):
     user_id = request.state.credentials["user_id"]
     async_req = HttpxAsyncRequest()
     db_transaction = SqlAlchemyDBTransaction()

@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {HTTPMethods, httpRequest, printError} from "../../utils/requests.js";
 import {useNavigate, useParams} from "react-router";
 
-export const DeletePage = () => {
+export const DeleteFunctionPage = () => {
 
   const {id} = useParams()
   const [service, setService] = useState(null)

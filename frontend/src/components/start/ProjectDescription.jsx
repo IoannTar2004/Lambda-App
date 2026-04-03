@@ -108,6 +108,10 @@ export const ProjectDescription = ({projectData}) => {
     navigate(`../projects/${projectData.id}/editor`)
   }
 
+  const deleteProject = () => {
+    navigate(`../projects/${projectData.id}/delete`)
+  }
+
   if (!projectData)
     return (
       <div className={styles.projectDescBox}>
@@ -157,6 +161,7 @@ export const ProjectDescription = ({projectData}) => {
           <div className={styles.projectButtonsBox}>
             <button id={styles.showFunctions} onClick={openFunctionPage}>Функции</button>
             <button id={styles.openProject} onClick={openProject}>Открыть проект</button>
+            <button id={styles.deleteProject} onClick={deleteProject}>Удалить проект</button>
           </div>
         </div>
       </div>

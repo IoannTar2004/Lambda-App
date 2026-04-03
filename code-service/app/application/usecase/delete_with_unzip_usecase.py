@@ -8,7 +8,7 @@ from application.usecase.commands.zip_project_command import ZipProjectCommand
 from settings import settings
 
 
-class HardRollbackUsecase:
+class DeleteWithUnzip:
 
     def __init__(self, storage: Storage):
         self.storage = storage
@@ -27,13 +27,12 @@ class HardRollbackUsecase:
 
             extract_to = tempfile.mkdtemp()
 
-                # Распаковываем архив
             shutil.unpack_archive(temp_zip_path, extract_to, 'zip')
 
             old_listdir = await self.storage.recursive_listdir(settings.S3_USER_CODE_BUCKET, f"{user_id}/{project_id}")
-            old_listdir = [key["Key"] for key in old_listdir]
-            print(old_listdir)
-            await self.storage.delete(settings.S3_USER_CODE_BUCKET, old_listdir)
+            if old_listdir:
+                old_listdir = [key["Key"] for key in old_listdir]
+                await self.storage.delete(settings.S3_USER_CODE_BUCKET, old_listdir)
 
             for file_path in self._get_recursive_listdir(Path(extract_to)):
                 key = f"{user_id}/{project_id}/{file_path}"

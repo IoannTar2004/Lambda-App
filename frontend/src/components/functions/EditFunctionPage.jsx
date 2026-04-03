@@ -2,7 +2,7 @@ import styles from "../../css/Function.module.css"
 import {useLocation, useNavigate, useParams} from "react-router";
 import {useEffect, useState} from "react";
 import {HTTPMethods, httpRequest, printError} from "../../utils/requests.js";
-export const EditPage = () => {
+export const EditFunctionPage = () => {
 
   const {id} = useParams()
   const location = useLocation()

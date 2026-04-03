@@ -7,6 +7,7 @@ from application.commands.create_s3_function_command import CreateS3FunctionComm
 from application.commands.update_handler_command import UpdateHandlerCommand
 from application.usecase.functions.create_function_usecase import CreateFunctionUseCase
 from application.usecase.functions.delete_function_usecase import DeleteFunctionUsecase
+from application.usecase.functions.get_deleted_files_usecase import GetDeletedFilesUsecase
 from application.usecase.functions.get_functions_usecase import GetFunctionsUsecase
 from application.usecase.functions.update_handler_usecase import UpdateHandlerUsecase
 from application.usecase.specific_functions.s3_function_usecase import S3FunctionUsecase
@@ -40,7 +41,7 @@ async def create_s3_function(data: CreateS3FunctionDTO, request: Request):
                   .execute(user_id, "S3", create_s3_function_command))
 
 @functions_router.delete("/delete-S3")
-async def delete_s3_function(function_id: Annotated[int, Field(ge=1)], request: Request):
+async def delete_s3_function(function_id: int, request: Request):
     user_id = request.state.credentials["user_id"]
     s3_function_usecase = S3FunctionUsecase(request.app.state.s3_service)
     await (DeleteFunctionUsecase(HttpxAsyncRequest(), SqlAlchemyDBTransaction(), s3_function_usecase)
@@ -54,3 +55,9 @@ async def update_handler(data: UpdateHandlerDTO, request: Request):
     update_handler_usecase = UpdateHandlerUsecase(SqlAlchemyDBTransaction())
     await update_handler_usecase.execute(user_id, to_command(UpdateHandlerCommand, data))
     return {"success": True}
+
+@functions_router.get("/get-deleted-files")
+async def get_deleted_files(project_id: int, request: Request):
+    user_id = request.state.credentials["user_id"]
+    get_deleted_files = GetDeletedFilesUsecase(SqlAlchemyDBTransaction(), HttpxAsyncRequest())
+    return await get_deleted_files.execute(user_id, project_id)

@@ -1,5 +1,5 @@
 import Editor from "@monaco-editor/react";
-import {useContext, useEffect, useRef, useState} from "react";
+import {Fragment, useContext, useEffect, useRef, useState} from "react";
 import axios from "axios";
 import styles from "../../css/CodeEditor.module.css";
 import {FileContext} from "./CodeEditorPage.jsx";
@@ -7,7 +7,7 @@ import {languages} from "../../utils/languages.js";
 import {HTTPMethods, httpRequest, httpRequestFormData} from "../../utils/requests.js";
 import {useParams} from "react-router";
 
-export const EditorField = () => {
+export const EditorField = ({globalContextMenu, setGlobalContextMenu}) => {
 
   const {id} = useParams()
   const {currentFile, setCurrentFile} = useContext(FileContext)
@@ -65,20 +65,27 @@ export const EditorField = () => {
     })
   }
 
+  const openGlobalContextMenu = (e, type) => {
+    e.stopPropagation();
+    setGlobalContextMenu(type)
+  }
+
   return (
-      <div className={styles.editorField} style={{display: currentFile ? "block" : "none"}}>
+      <div className={styles.editorField}>
         <header>
           <div className={styles.name}>
             {currentFile?.name}
           </div>
           <div className={styles.projectActions}>
-            <button ref={saveButtonRef} id={"saveCode"} onClick={handleSaveButton}>Сохранить</button>
-            <button>Деплой</button>
-            <button>Откат</button>
+            <button style={{visibility: currentFile ? "visible" : "hidden"}} ref={saveButtonRef} id={"saveCode"}
+                    onClick={handleSaveButton}>Сохранить</button>
+            <button onClick={(e) => openGlobalContextMenu(e, "commit")}>Деплой</button>
+            <button onClick={(e, ) => openGlobalContextMenu(e, "rollback")}>Откат</button>
           </div>
 
         </header>
-        <Editor width={"100%"}
+        <Fragment style={{visibility: currentFile && !globalContextMenu ? "visible" : "hidden"}}>
+          <Editor width={"100%"}
                 path={currentFile?.name}
                 defaultValue={""} theme="vs-dark"
                 onMount={editorOnMountEvent}
@@ -87,8 +94,9 @@ export const EditorField = () => {
                   fontFamily: "Consolas, 'Courier New', monospace",
                   fontSize: 17,
                   fontLigatures: true
-                }}
-        />
+                }}/>
+        </Fragment>
+
       </div>
     )
 };

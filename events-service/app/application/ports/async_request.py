@@ -20,5 +20,6 @@ class AsyncRequest(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, endpoint: str | None, service_name: str | None, json: dict, headers = None) -> Any:
+    async def delete(self, endpoint: str | None, service_name: str | None, json: dict = None, params: dict = None,
+                     headers=None) -> Any:
         pass

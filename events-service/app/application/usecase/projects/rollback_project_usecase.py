@@ -50,8 +50,8 @@ class RollbackProjectUsecase:
                     headers={
                       "Authorization": settings.COMMUNICATION_TOKEN
                     })
-            else:
-                await self.async_req.delete("/api/code/zip/delete-version", "code-service", payload,
-                    headers={
-                        "Authorization": settings.COMMUNICATION_TOKEN
-                    }) # TODO заменить на kafka
+
+            await self.async_req.delete("/api/code/zip/delete-version", "code-service", payload,
+                headers={
+                    "Authorization": settings.COMMUNICATION_TOKEN
+                })

@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from httpx import HTTPStatusError
 
 from application.ports.async_request import AsyncRequest
 from application.ports.db_transaction import DBTransaction
@@ -52,11 +53,15 @@ class CommitProjectUseCase:
                     new_handler.function_name = update_handlers_dict[function.id]["function_name"]
 
                 await tx.insert(new_handler)
-
-            await self.async_req.post("/api/code/zip/zip-project", "code-service", {
-                "user_id": project.user_id,
-                "project_id": project.id,
-                "revision_id": project_revision.id
-            }, headers={
-                "Authorization": settings.COMMUNICATION_TOKEN
-            }) # TODO заменить все на Kafka
+            try:
+                await self.async_req.post("/api/code/zip/zip-project", "code-service", {
+                    "user_id": project.user_id,
+                    "project_id": project.id,
+                    "revision_id": project_revision.id
+                }, headers={
+                    "Authorization": settings.COMMUNICATION_TOKEN
+                })
+            except HTTPStatusError as e:
+                if e.response.status_code == 404:
+                    raise HTTPException(status_code=404, detail="Empty project")
+                raise e

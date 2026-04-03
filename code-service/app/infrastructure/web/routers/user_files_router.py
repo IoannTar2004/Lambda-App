@@ -8,7 +8,7 @@ from starlette.responses import StreamingResponse
 
 from application.usecase.files_operations_usecase import FilesOperationsUseCase
 from application.usecase.runnable_list_usecase import RunnableListUseCase
-from application.usecase.hard_rollback_usecase import HardRollbackUsecase
+from application.usecase.delete_with_unzip_usecase import DeleteWithUnzip
 from infrastructure.web.dto.user_files.delete_files_dto import DeleteFilesDto
 from settings import settings
 
