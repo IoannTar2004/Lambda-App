@@ -87,6 +87,13 @@ body {
     border-bottom-color: transparent;
 }
 
+.loader.small {
+    height: 25px;
+    width: 25px;
+    border: 3px solid #FFF;
+    border-bottom-color: transparent;
+}
+
 .error {
    color: red;
 }

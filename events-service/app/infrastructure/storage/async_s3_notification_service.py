@@ -1,4 +1,6 @@
 import aioboto3
+from botocore.exceptions import ClientError
+from fastapi import HTTPException
 
 from application.ports.storage_notification import StorageNotification
 
@@ -15,7 +17,12 @@ class AsyncS3NotificationService(StorageNotification):
 
     async def add_notification(self, id: str, bucket: str, events: list[str], prefix: str = None, suffix: str = None):
         async with self.session.client("s3", endpoint_url=self.url) as s3_client:
-            configurations: dict = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
+            try:
+                configurations: dict = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
+            except ClientError as e:
+                error_code = e.response['Error']['Code']
+                if error_code == "NoSuchBucket":
+                    raise HTTPException(status_code=404, detail="Bucket not found")
             configurations.pop("ResponseMetadata")
             queue_configurations = configurations.get("QueueConfigurations", [])
             queue_configurations.append({

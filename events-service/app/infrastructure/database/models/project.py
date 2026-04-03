@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, func, DateTime
+from sqlalchemy import BigInteger, func, DateTime, text
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.testing.schema import mapped_column
 
@@ -17,3 +17,11 @@ class ProjectModel(Base):
 
     functions: Mapped[list["FunctionModel"]] = relationship(back_populates="project",
                                                                    cascade="all, delete-orphan")
+
+    last_revision: Mapped["ProjectRevisionModel"] = (
+        relationship(back_populates="project",
+                     cascade="all, delete-orphan",
+                     primaryjoin="""and_(
+                                        ProjectModel.id == ProjectRevisionModel.project_id,
+                                        ProjectModel.version_number == ProjectRevisionModel.version_number
+                                    )"""))

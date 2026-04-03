@@ -30,13 +30,13 @@ class RunFunctionUsecase:
         self.cache = cache
 
     async def execute(self, function_meta):
-        project_id = function_meta["project_id"]
+        revision_id = function_meta["revision_id"]
         function_id = function_meta["function_id"]
         user_id = function_meta["user_id"]
         script_path = Path(settings.LAMBDA_SCRIPT_PATH)
         function_name = function_meta["function_name"]
 
-        target_dir = (Path(settings.CODE_ARCHIVES_DIRECTORY) / str(project_id) /
+        target_dir = (Path(settings.CODE_ARCHIVES_DIRECTORY) / str(revision_id) /
                       f"v{function_meta['project_version']}")
         if not os.path.exists(target_dir):
             await self._download_and_unzip_code(target_dir, function_meta)
@@ -81,7 +81,7 @@ class RunFunctionUsecase:
 
 
     async def _download_and_unzip_code(self, target_dir, function_meta):
-        storage_archive_path = (f"{function_meta['user_id']}/{function_meta['project_id']}/"
+        storage_archive_path = (f"{function_meta['user_id']}/{function_meta['revision_id']}/"
                                 f"v{function_meta['project_version']}.zip")
 
         if not os.path.exists(target_dir.parent):

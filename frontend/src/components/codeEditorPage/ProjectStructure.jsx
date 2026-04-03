@@ -170,11 +170,6 @@ export const ProjectStructure = () => {
 
         {contextMenu?.type === "Directory" && (
             <div className={styles.contextMenu} style={{top: contextMenu.y, left: contextMenu.x}}>
-              {contextMenu.path !== "" && (
-                <div className={styles.actionBox} onClick={handleRenameClick}>
-                  <MdDriveFileRenameOutline className={".icon"}/> Переименовать
-                </div>
-              )}
 
               <div className={styles.actionBox + " " + styles.uploadFile} onChange={handleUploadFile}>
                 <RiFileUploadFill className={".icon"}/> Загрузить файл

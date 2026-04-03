@@ -21,21 +21,6 @@ export const StartPage = () => {
     setIsLoading(false) // TODO временно
   }, []);
 
-  const projectDescription = [
-      {
-        language: "Python",
-        percent: 60
-      },
-      {
-        language: "Java",
-        percent: 38
-      },
-      {
-        language: "Other",
-        percent: 2
-      }
-  ]
-
   if (isLoading)
     return <div className={styles.content}><span className={"loader dark"}></span></div>
 

@@ -36,7 +36,7 @@ class ZipProjectUsecase:
             zip_buffer.seek(0)
 
         await self.storage.upload(settings.S3_CODE_ARCHIVES_BUCKET,
-                                  f"300904/{data.project_id}/v{data.version_number}.zip",
+                                  f"300904/{data.project_id}/{data.revision_id}.zip",
                                   zip_buffer.getvalue())
 
 

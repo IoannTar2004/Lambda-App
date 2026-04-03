@@ -5,4 +5,4 @@ class DeleteVersionDto(BaseModel):
 
     user_id: int = Field()
     project_id: int = Field(ge=1)
-    version_number: int = Field(ge=1)
+    revision_id: int = Field(ge=1)

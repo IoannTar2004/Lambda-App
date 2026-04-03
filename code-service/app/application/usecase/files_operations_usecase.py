@@ -4,7 +4,6 @@ from pathlib import Path
 from fastapi import UploadFile, HTTPException
 
 from application.ports.storage import Storage
-from application.ports.cache import Cache
 from infrastructure.web.dto.user_files.listdir_dto import ListdirDto
 
 

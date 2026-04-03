@@ -1,11 +1,11 @@
 from fastapi import HTTPException
 
-from application.commands.update_function_command import UpdateProjectCommand
 from application.ports.async_request import AsyncRequest
 from application.ports.db_transaction import DBTransaction
 from domain.models.function_handler import FunctionHandler
 from domain.models.project import Project
 from domain.models.function import Function
+from domain.models.project_revision import ProjectRevision
 from settings import settings
 
 
@@ -25,6 +25,9 @@ class CommitProjectUseCase:
 
             project.version_number += 1
             await tx.update(project)
+
+            project_revision = ProjectRevision(project.id, project.version_number)
+            project_revision = await tx.insert(project_revision)
 
             function_list = await tx.get_by_filters(Function, _joins=['handler'], project_id=data["project_id"],
                                                     user_id=user_id)
@@ -53,7 +56,7 @@ class CommitProjectUseCase:
             await self.async_req.post("/api/code/zip/zip-project", "code-service", {
                 "user_id": project.user_id,
                 "project_id": project.id,
-                "version_number": project.version_number
+                "revision_id": project_revision.id
             }, headers={
                 "Authorization": settings.COMMUNICATION_TOKEN
             }) # TODO заменить все на Kafka

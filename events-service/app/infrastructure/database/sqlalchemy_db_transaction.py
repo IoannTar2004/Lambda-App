@@ -32,8 +32,10 @@ class SqlAlchemyDBTransaction(DBTransaction):
         res = await self.session.get(model_class, model_id)
         return model_to_domain(res) if res else None
 
-    async def get_by_filters(self, domain_class, _selections: list[str] | None = None,
-                             _joins: list[str] | None = None, **kwargs):
+    async def get_by_filters(self, domain_class, _offset = 0, _limit=None,
+                             _selections: list[str] | None = None,
+                             _joins: list[str] | None = None,
+                             **kwargs):
         model_class = DOMAIN_MODEL_MAPPING[domain_class]
         filters = []
         for k, v in kwargs.items():
@@ -49,9 +51,11 @@ class SqlAlchemyDBTransaction(DBTransaction):
 
         options, requested_relations = self.__create_options(model_class, _selections, _joins)
 
-        result = await self.session.execute(
-            select(model_class).where(*filters).options(*options)
-        )
+        query = select(model_class).where(*filters).options(*options).offset(_offset)
+        if _limit:
+            query = query.limit(_limit)
+
+        result = await self.session.execute(query)
 
         return [model_to_domain(res_domain, requested_relations) for res_domain in result.scalars().unique().all()]
 

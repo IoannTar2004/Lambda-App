@@ -5,4 +5,4 @@ from dataclasses import dataclass
 class DeleteVersionCommand:
     user_id: int
     project_id: int
-    version_number: int
+    revision_id: int

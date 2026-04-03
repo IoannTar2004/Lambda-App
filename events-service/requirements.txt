@@ -20,3 +20,5 @@ uvicorn==0.41.0
 
 sqlalchemy
 pyjwt
+aioboto3
+botocore

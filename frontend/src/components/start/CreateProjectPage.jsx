@@ -15,7 +15,7 @@ export const CreateProjectPage = () => {
     httpRequest(HTTPMethods.POST, "/api/events/project/create", {
       projectName: name
     }).then(e => {
-      const id = e.data.projectId
+      const id = e.data.id
       navigate("../projects/" + id)
     }).catch((err) => {
       if (err.status === HttpStatusCode.Conflict)

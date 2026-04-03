@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 562c00590aaa
+Revision ID: 310cd81000db
 Revises: 
-Create Date: 2026-04-01 12:04:28.694706
+Create Date: 2026-04-03 01:52:29.115128
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '562c00590aaa'
+revision: str = '310cd81000db'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -38,6 +38,13 @@ def upgrade() -> None:
     sa.Column('project_id', sa.BigInteger(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('environment', sa.Enum('PYTHON_3', name='environmentenum'), nullable=False),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('project_revisions',
+    sa.Column('id', sa.BigInteger(), nullable=False),
+    sa.Column('project_id', sa.BigInteger(), nullable=False),
+    sa.Column('version_number', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -78,6 +85,7 @@ def downgrade() -> None:
     op.drop_table('s3_functions')
     op.drop_table('function_handlers')
     op.drop_table('execution_logs')
+    op.drop_table('project_revisions')
     op.drop_table('functions')
     op.drop_table('projects')
     # ### end Alembic commands ###

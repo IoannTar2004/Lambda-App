@@ -1,10 +1,13 @@
 import os.path
+from typing import Annotated
 
 from fastapi import APIRouter, UploadFile, Request
 from fastapi.params import Form
+from pydantic import Field
 from starlette.responses import StreamingResponse
 
 from application.usecase.files_operations_usecase import FilesOperationsUseCase
+from application.usecase.hard_rollback_usecase import HardRollbackUsecase
 from infrastructure.web.dto.user_files.delete_files_dto import DeleteFilesDto
 from settings import settings
 

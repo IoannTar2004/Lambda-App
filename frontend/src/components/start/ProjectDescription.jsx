@@ -51,7 +51,7 @@ export const ProjectDescription = ({projectData}) => {
       languages: languagesPercents
     }
     setProjectDescription(data)
-    projectDescriptionCache.set(projectData.projectId, data)
+    projectDescriptionCache.set(projectData.id, data)
     // const data = new Date(files[0].lastModified).getTime()
 
   }
@@ -60,12 +60,12 @@ export const ProjectDescription = ({projectData}) => {
     if (!projectData)
       return
 
-    if (projectDescriptionCache.has(projectData.projectId))
-      setProjectDescription(projectDescriptionCache.get(projectData.projectId))
+    if (projectDescriptionCache.has(projectData.id))
+      setProjectDescription(projectDescriptionCache.get(projectData.id))
     else {
       setProjectDescription({...projectDescription, languages: null})
       httpRequest(HTTPMethods.GET, "/api/code/user-files/listdir-all", {
-        projectId: projectData.projectId,
+        projectId: projectData.id,
         path: ""
       }).then(e => countFiles(e.data)).catch(console.error)
     }
@@ -100,7 +100,7 @@ export const ProjectDescription = ({projectData}) => {
   }
 
   const openProject = () => {
-    navigate("../projects/" + projectData.projectId)
+    navigate("../projects/" + projectData.id)
   }
 
   if (!projectData)

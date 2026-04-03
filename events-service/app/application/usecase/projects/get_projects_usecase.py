@@ -28,4 +28,4 @@ class GetProjectsUsecase:
             if projects and user_id != projects[0].user_id:
                 raise HTTPException(status_code=403, detail="Projects don't belong to this user")
 
-            return [{"project_id": p.id, "project_name": p.project_name} for p in projects]
+            return projects

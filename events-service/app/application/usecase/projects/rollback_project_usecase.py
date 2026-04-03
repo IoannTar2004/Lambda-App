@@ -14,9 +14,9 @@ class RollbackProjectUsecase:
         self.async_req = async_req
         self.db_transaction = db_transaction
 
-    async def execute(self, user_id: int, project_id: int):
+    async def execute(self, user_id: int, project_id: int, hard: bool):
         async with self.db_transaction as tx:
-            project_list = await tx.get_by_filters(Project, _joins=["functions"],
+            project_list = await tx.get_by_filters(Project, _joins=["functions", "last_revision"],
                                                        id=project_id, user_id=user_id)
             if not project_list:
                 raise HTTPException(status_code=404, detail="Function does not exist")
@@ -24,8 +24,9 @@ class RollbackProjectUsecase:
             if project.version_number == 0:
                 raise HTTPException(status_code=409, detail="Cannot rollback. Version number is 0")
 
-            prev_version = project.version_number
             project.version_number -= 1
+            await tx.delete(project.relations["last_revision"])
+            project_revision = project.relations["last_revision"]
             await tx.update(project)
 
             for function in project.relations["functions"]:
@@ -39,10 +40,18 @@ class RollbackProjectUsecase:
                 await tx.update(function)
                 await tx.delete(handler)
 
-            await self.async_req.delete("/api/code/zip/delete-version", "code-service", {
+            payload = {
                 "user_id": project.user_id,
                 "project_id": project.id,
-                "version_number": prev_version
-            } ,headers={
-                "Authorization": settings.COMMUNICATION_TOKEN
-            }) # TODO заменить на kafka
+                "revision_id": project_revision.id,
+            }
+            if hard:
+                await self.async_req.post("/api/code/zip/delete-with-unzip", "code-service", payload,
+                    headers={
+                      "Authorization": settings.COMMUNICATION_TOKEN
+                    })
+            else:
+                await self.async_req.delete("/api/code/zip/delete-version", "code-service", payload,
+                    headers={
+                        "Authorization": settings.COMMUNICATION_TOKEN
+                    }) # TODO заменить на kafka

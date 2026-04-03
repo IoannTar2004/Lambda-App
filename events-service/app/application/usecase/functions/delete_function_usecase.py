@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from application.ports.async_request import AsyncRequest
 from application.ports.db_transaction import DBTransaction
 from application.usecase.specific_functions.specific_function import SpecificFunction
@@ -13,12 +15,17 @@ class DeleteFunctionUsecase:
         self.db_transaction = db_transaction
         self.specific_function = specific_function
 
-    async def execute(self, function_id: int):
+    async def execute(self, user_id: int, function_id: int):
         async with self.db_transaction as tx:
-            s3_function = await tx.get(S3Function, function_id)
+            function = await tx.get(Function, function_id)
+            if not function:
+                raise HTTPException(status_code=404, detail="Function not found")
+            if function.user_id != user_id:
+                raise HTTPException(status_code=404, detail="Function doesn't belong to this user")
+
             await tx.delete_by_filters(Function, id=function_id)
             data = {
                 "function_id": function_id,
-                "bucket": s3_function.bucket,
+                "bucket": function.bucket,
             }
             await self.specific_function.delete(data, self.async_req)

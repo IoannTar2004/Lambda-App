@@ -2,6 +2,7 @@ from application.ports.db_transaction import DBTransaction
 from application.ports.publisher import Publisher
 from domain.models.function import Function
 from domain.models.function_handler import FunctionHandler
+from domain.models.project_revision import ProjectRevision
 from domain.models.s3_function import S3Function
 
 
@@ -31,14 +32,19 @@ class PublishS3EventUsecase:
                                                              bucket=bucket,
                                                              event=event,
                                                              key=key)
+
+            revision_id = None
             for s3 in s3_functions:
                 function : Function = (await tx.get_by_filters(Function, _joins=["handler"], id=s3.id))[0]
-                handler : FunctionHandler = function.relations["handler"]
+                handler = function.relations["handler"]
+                if not revision_id:
+                    revision_id = (await tx.get_by_filters(ProjectRevision, project_id=function.project_id,
+                                                          version_number=function.project_version))[0].id
                 message_with_metadata = {
                     "user_id": function.user_id,
                     "function_id": function.id,
                     "environment": function.environment,
-                    "project_id": function.project_id,
+                    "revision_id": revision_id,
                     "project_version": handler.project_version,
                     "function_path": handler.function_path,
                     "function_name": handler.function_name,
