@@ -47,7 +47,7 @@ export const EditFunctionPage = () => {
               setParameters({...parameters, handler: e.target.value})}/>
 
           <div className={styles.head}>Размер памяти</div>
-          <select onChange={e =>
+          <select value={parameters.memorySize} onChange={e =>
               setParameters({...parameters, memorySize: e.target.value})}>
             <option value={"128"}>128 МБ</option>
             <option value="256">256 МБ</option>
@@ -56,7 +56,7 @@ export const EditFunctionPage = () => {
           </select>
 
           <div className={styles.head}>Таймаут (в секундах)</div>
-          <input type={"number"} max={300} min={1} value={300} onChange={(e) =>
+          <input type={"number"} max={300} min={1} value={parameters.timeout} onChange={(e) =>
               setParameters({...parameters, timeout: e.target.value})}/>
           <div className={styles.saveParametersBox}>
             <button id={styles.saveParametersButton} onClick={handleSave}>Сохранить</button>
