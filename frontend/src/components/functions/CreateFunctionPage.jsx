@@ -177,8 +177,8 @@ const ServiceParameters = ({service, parameters, handleOnChange, handleCheckboxe
                        onChange={e => handleCheckboxes("events", e.target.value, e.target.checked)}/> Загрузить объект
               </label>
               <label>
-                <input checked={parameters?.events?.includes("s3:ObjectRemoved:Delete") || false} type={"checkbox"}
-                       value={"s3:ObjectRemoved:Delete"}
+                <input checked={parameters?.events?.includes("minio:ObjectRemoved:Delete") || false} type={"checkbox"}
+                       value={"minio:ObjectRemoved:Delete"}
                        onChange={e => handleCheckboxes("events", e.target.value, e.target.checked)}/> Удалить объект
               </label>
             </div>

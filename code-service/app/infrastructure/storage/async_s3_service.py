@@ -20,14 +20,14 @@ class S3Service(Storage):
         )
 
     async def upload(self, bucket: str | None, path: str, data: bytes) -> None:
-        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+        async with self.session.client("minio", endpoint_url=self.url) as s3_client:
             binary = io.BytesIO(data)
             await s3_client.put_object(Bucket=bucket,
                                        Key=path,
                                        Body=binary)
 
     async def download(self, bucket: str | None, path: str) -> AsyncGenerator[bytes, Any]:
-        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+        async with self.session.client("minio", endpoint_url=self.url) as s3_client:
             s3_client = cast(S3Client, s3_client)
             response = await s3_client.get_object(Bucket=bucket, Key=path)
             chunk_size = 1024 * 1024
@@ -46,11 +46,11 @@ class S3Service(Storage):
     async def delete(self, bucket: str | None, keys: list[str]) -> None:
         delete_objects = [{"Key": k} for k in keys]
         print(delete_objects)
-        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+        async with self.session.client("minio", endpoint_url=self.url) as s3_client:
             await s3_client.delete_objects(Bucket=bucket, Delete={"Objects": delete_objects, 'Quiet': True})
 
     async def exists(self, bucket: str | None, path: str) -> bool:
-        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+        async with self.session.client("minio", endpoint_url=self.url) as s3_client:
             try:
                 await s3_client.head_object(Bucket=bucket, Key=path)
                 return True
@@ -58,13 +58,13 @@ class S3Service(Storage):
                 return False
 
     async def listdir(self, bucket: str | None, path: str) -> tuple[list[Any], list[Any]]:
-        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+        async with self.session.client("minio", endpoint_url=self.url) as s3_client:
             response = await s3_client.list_objects(Bucket=bucket, Prefix=path, Delimiter="/")
             files = response["Contents"] if "Contents" in response else []
             directories = response["CommonPrefixes"] if "CommonPrefixes" in response else []
             return directories, files
 
     async def recursive_listdir(self, bucket: str | None, path: str) -> list[Any]:
-        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
+        async with self.session.client("minio", endpoint_url=self.url) as s3_client:
             res = await s3_client.list_objects(Bucket=bucket, Prefix=path)
             return res["Contents"] if "Contents" in res else []

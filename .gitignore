@@ -3,5 +3,6 @@
 **/lambda_app.iml
 **/__pycache__/
 */.env*
+!*/.env.example
 code-archives
 test_scripts

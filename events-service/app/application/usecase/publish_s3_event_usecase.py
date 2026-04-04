@@ -15,7 +15,7 @@ class PublishS3EventUsecase:
         self.db_transaction = db_transaction
 
     async def execute(self, message):
-        bucket = message["Records"][0]["s3"]["bucket"]["name"]
+        bucket = message["Records"][0]["minio"]["bucket"]["name"]
         event = message["EventName"]
         key = ''.join(message["Key"].split("/")[1:])
         sql = ("select * from s3_functions "
