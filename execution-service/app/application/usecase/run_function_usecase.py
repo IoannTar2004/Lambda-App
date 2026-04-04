@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import threading
 import time
 import uuid
 from pathlib import Path
@@ -30,6 +31,7 @@ class RunFunctionUsecase:
         self.cache = cache
 
     async def execute(self, function_meta):
+        print("ok")
         revision_id = function_meta["revision_id"]
         project_id = function_meta["project_id"]
         function_id = function_meta["function_id"]
@@ -44,12 +46,14 @@ class RunFunctionUsecase:
         last_used = target_dir / ".last_used"
         last_used.touch()
 
-        loop = asyncio.get_running_loop()
         run_id = uuid.uuid4().hex
-        process = None
+        process: subprocess.Popen | None = None
         container_name = f"{user_id}_{run_id}"
 
+        log_queue = asyncio.Queue(maxsize=1000)
+
         await self.cache.add(run_function_f(), run_id)
+
         start_time = time.time()
         def run_docker():
             nonlocal process
@@ -63,23 +67,57 @@ class RunFunctionUsecase:
                     text=True,
                     encoding="utf-8"
             )
-            future = asyncio.run_coroutine_threadsafe(
-                self._stream_prints(process, user_id, run_id, start_time, function_id),
-                loop
-            )
-            process.wait()
-            future.result()
 
-        lock = target_dir / ".lock_file"
+            for line in iter(process.stdout.readline, ''):
+                if not line:
+                    break
+
+                msg = {
+                    "id": run_id,
+                    "start_time": start_time,
+                    "text": line.rstrip(),
+                    "type": "log",
+                    "function_id": function_id
+                }
+                try:
+                    log_queue.put_nowait(msg)
+                except asyncio.QueueFull:
+                    logger.warning(f"Log queue full for {run_id}, dropping line")
+
+            process.stdout.close()
+            process.wait()
+            log_queue.put_nowait(None)
+
+        lock = target_dir / (".lock_file" + run_id)
         lock.touch()
 
+        thread = threading.Thread(target=run_docker, daemon=True)
+        thread.start()
+
+        writer_task = asyncio.create_task(self._stream_prints(log_queue, user_id, run_id))
         try:
-            await asyncio.wait_for(loop.run_in_executor(None, run_docker), timeout=function_meta["timeout"])
+            await asyncio.wait_for(
+                asyncio.to_thread(thread.join),
+                timeout=function_meta["timeout"]
+            )
+
+            await log_queue.join()
+            await writer_task
+
+            await self._flush_logs(user_id, function_id, run_id, start_time)
+
         except asyncio.TimeoutError:
             logger.info(f"Function {run_id} timed out")
-            await self._kill_docker_container(loop, container_name)
+            if process and process.poll() is None:
+                self._kill_docker_container(container_name)
 
-        await self._flush_logs(user_id, function_id, run_id, start_time)
+            await asyncio.sleep(0.2)
+            if thread.is_alive():
+                thread.join(timeout=1.0)
+
+            writer_task.cancel()
+            await self._flush_logs(user_id, function_id, run_id, start_time, function_meta["timeout"])
+
         os.remove(lock)
 
 
@@ -130,34 +168,37 @@ class RunFunctionUsecase:
 
         return []
 
-    async def _stream_prints(self, process, user_id, run_id, start_time, function_id):
-        for line in iter(process.stdout.readline, ""):
-            message = {
-                "id": run_id,
-                "start_time": start_time,
-                "text": line.rstrip(),
-                "type": "log",
-                "function_id": function_id
-            }
+    async def _stream_prints(self, log_queue, user_id, run_id):
+        while True:
+            msg = await log_queue.get()
 
-            id = await self.log_stream.add(logs_key_f(user_id, run_id), message, 30)
-            message["timestamp"] = id
-            await self.log_stream.publish(pubsub_key_f(user_id), json.dumps(message))
+            if msg is None:
+                log_queue.task_done()
+                break
 
-    async def _kill_docker_container(self, loop, container_name):
-        await loop.run_in_executor(
-            None,
-            lambda: subprocess.run(
+            try:
+                msg_id = await self.log_stream.add(logs_key_f(user_id, run_id), msg, 30)
+                msg["timestamp"] = msg_id
+                await self.log_stream.publish(pubsub_key_f(user_id), json.dumps(msg))
+            except Exception as e:
+                logger.error(f"Error sending log: {e}")
+
+            log_queue.task_done()
+
+    def _kill_docker_container(self, container_name):
+        try:
+            subprocess.Popen(
                 ["docker", "kill", container_name],
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
             )
-        )
+        except Exception as e:
+            pass
 
-    async def _flush_logs(self, user_id, function_id, run_id, start_time):
+    async def _flush_logs(self, user_id, function_id, run_id, start_time, timeout=None):
         logs = await self.log_stream.read(logs_key_f(user_id, run_id))
         logs = [{"timestamp": id, "text": text["text"]} for id, text in logs]
-        execution_time = logs[-1]["text"]
+        execution_time = logs[-1]["text"] if not timeout else timeout
         logs = logs[:-1]
 
         last_message = json.dumps({

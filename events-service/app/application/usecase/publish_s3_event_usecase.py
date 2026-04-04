@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from application.ports.db_transaction import DBTransaction
 from application.ports.publisher import Publisher
 from domain.models.function import Function
@@ -37,9 +39,12 @@ class PublishS3EventUsecase:
             for s3 in s3_functions:
                 function : Function = (await tx.get_by_filters(Function, _joins=["handler"], id=s3.id))[0]
                 handler = function.relations["handler"]
-                if not revision_id:
-                    revision_id = (await tx.get_by_filters(ProjectRevision, project_id=function.project_id,
-                                                          version_number=function.project_version))[0].id
+                optional_rev = await tx.get_by_filters(ProjectRevision, project_id=function.project_id,
+                                                          version_number=function.project_version)
+                if not optional_rev:
+                    raise HTTPException(status_code=404, detail="Revision not found")
+
+                revision_id = optional_rev[0].id
                 message_with_metadata = {
                     "user_id": function.user_id,
                     "project_id": function.project_id,

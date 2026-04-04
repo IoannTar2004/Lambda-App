@@ -25,14 +25,14 @@ async def lifespan(app: FastAPI):
     app.state.s3_service = AsyncS3NotificationService(settings.S3_USER_URL,
                                                    settings.S3_USER_ACCESS_KEY, settings.S3_USER_SECRET_KEY)
     await service_register()
-    # kafka = Kafka(settings.KAFKA_BOOTSTRAP_SERVERS)
-    # fast_stream = FastStream(kafka.broker)
-    # await fast_stream.start()
-    # app.state.publisher = kafka
+    kafka = Kafka(settings.KAFKA_BOOTSTRAP_SERVERS)
+    fast_stream = FastStream(kafka.broker)
+    await fast_stream.start()
+    app.state.publisher = kafka
 
     yield
 
-    # await fast_stream.stop()
+    await fast_stream.stop()
     await service_unregister()
     await app.state.cache.close()
 

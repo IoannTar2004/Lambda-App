@@ -7,7 +7,7 @@ from infrastructure.messaging.kafka.kafka import broker
 from infrastructure.messaging.web_socket_manager import websocket_manager
 
 
-@broker.subscriber("events")
+@broker.subscriber("events", max_workers=10)
 async def event_consumer(function_meta):
     run_function_usecase = RunFunctionUsecase(HttpxAsyncRequest(), websocket_manager,
                                               RedisLogStream(redis_connection.redis), RedisHashSet(redis_connection.redis))

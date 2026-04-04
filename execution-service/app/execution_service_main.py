@@ -22,27 +22,6 @@ from settings import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # if sys.platform == "win32":
-        # На Windows нужно использовать ProactorEventLoop
-    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-
-    process = await asyncio.create_subprocess_exec(
-        "cmd", "/c", "echo Hello",
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
-    )
-
-    stdout, stderr = await process.communicate()
-    print(stdout.decode())
-
-    if not os.path.exists(settings.CODE_ARCHIVES_DIRECTORY):
-        os.mkdir(settings.CODE_ARCHIVES_DIRECTORY)
-
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(dir_cleaner_start, 'interval', seconds=3600,
-                      args=[settings.CODE_ARCHIVES_DIRECTORY, settings.CODE_ARCHIVES_CLEAN_INTERVAL_SECONDS])
-    scheduler.start()
-
     fast_stream = FastStream(broker)
     await fast_stream.start()
     await service_register()
@@ -50,7 +29,6 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    scheduler.shutdown()
     await service_unregister()
     await fast_stream.stop()
     await redis_connection.close()

@@ -2,6 +2,6 @@
 **/.idea
 **/lambda_app.iml
 **/__pycache__/
-*/.env.*
+*/.env*
 code-archives
 test_scripts
