@@ -16,7 +16,7 @@ class CreateProjectUsecase:
 
     async def execute(self, user_id: int, project_name: str):
         async with self.db_transaction as tx:
-            exist_project = await tx.get_by_filters(Project, project_name=project_name)
+            exist_project = await tx.get_by_filters(Project, project_name=project_name, user_id=user_id)
             if exist_project:
                 raise HTTPException(status_code=409, detail="Project already exists")
 

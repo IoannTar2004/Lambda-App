@@ -2,7 +2,7 @@ import axios from "axios"
 import humps from 'humps'
 
 const api = axios.create({
-  timeout: 5000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   }
@@ -16,7 +16,12 @@ api.interceptors.response.use(
     }
     return response;
   },
-  error => Promise.reject(error)
+  error => {
+    if (error.response?.data) {
+      error.response.data = humps.camelizeKeys(error.response.data);
+    }
+    return Promise.reject(error);
+  }
 );
 
 api.interceptors.request.use(

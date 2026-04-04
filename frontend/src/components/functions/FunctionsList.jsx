@@ -25,7 +25,7 @@ export const FunctionsList = ({functions}) => {
           {functions.length > 0 ?functions.map(e => {
               const extension = e.handlerPath.split('.').pop()
               return (
-                  <div className={styles.functionElement} onClick={() => openFunction(e, extension)}>
+                  <div key={e.name} className={styles.functionElement} onClick={() => openFunction(e, extension)}>
                     <div className={styles.name}>{e.name}</div>
 
                     <div className={styles.info}><span>Сервис: </span>{e.service}</div>

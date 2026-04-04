@@ -18,7 +18,8 @@ class FunctionModel(Base):
     user_id: Mapped[int] = mapped_column(BigInteger)
     name: Mapped[str] = mapped_column(nullable=False)
     service: Mapped[str] = mapped_column(nullable=False)
-    project_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    project_version: Mapped[int] = mapped_column(nullable=False)
+    base_version: Mapped[int] = mapped_column(nullable=False)
     project_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('projects.id'))
     environment: Mapped[EnvironmentEnum]
     created_at = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())

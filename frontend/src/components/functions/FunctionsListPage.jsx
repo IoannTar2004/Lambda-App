@@ -3,6 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import {FunctionsList} from "./FunctionsList.jsx";
 import {useLocation, useNavigate, useParams} from "react-router";
 import {HTTPMethods, httpRequest, printError} from "../../utils/requests.js";
+import {isReservedFile} from "../../utils/reserved.js";
 
 export const FunctionsListPage = () => {
 
@@ -51,7 +52,8 @@ export const FunctionsListPage = () => {
       path: ""
     }).then((e) => {
       const project = e.data
-      projectStructure.current = project.map(e => e.key.split("/").slice(2).join("/"))
+      let getStructure = project.map(e => e.key.split("/").slice(2).join("/"))
+      projectStructure.current = getStructure.filter(e => !isReservedFile(e.split("/").pop()))
     })
   }, []);
 

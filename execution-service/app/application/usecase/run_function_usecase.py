@@ -31,13 +31,13 @@ class RunFunctionUsecase:
 
     async def execute(self, function_meta):
         revision_id = function_meta["revision_id"]
+        project_id = function_meta["project_id"]
         function_id = function_meta["function_id"]
         user_id = function_meta["user_id"]
         script_path = Path(settings.LAMBDA_SCRIPT_PATH)
         function_name = function_meta["function_name"]
 
-        target_dir = (Path(settings.CODE_ARCHIVES_DIRECTORY) / str(revision_id) /
-                      f"v{function_meta['project_version']}")
+        target_dir = Path(settings.CODE_ARCHIVES_DIRECTORY) / str(project_id) / str(revision_id)
         if not os.path.exists(target_dir):
             await self._download_and_unzip_code(target_dir, function_meta)
 
@@ -63,7 +63,10 @@ class RunFunctionUsecase:
                     text=True,
                     encoding="utf-8"
             )
-            future = asyncio.run_coroutine_threadsafe(self._stream_prints(process, user_id, run_id, start_time), loop)
+            future = asyncio.run_coroutine_threadsafe(
+                self._stream_prints(process, user_id, run_id, start_time, function_id),
+                loop
+            )
             process.wait()
             future.result()
 
@@ -81,8 +84,8 @@ class RunFunctionUsecase:
 
 
     async def _download_and_unzip_code(self, target_dir, function_meta):
-        storage_archive_path = (f"{function_meta['user_id']}/{function_meta['revision_id']}/"
-                                f"v{function_meta['project_version']}.zip")
+        storage_archive_path = (f"{function_meta['user_id']}/{function_meta['project_id']}/"
+                                f"{function_meta['revision_id']}.zip")
 
         if not os.path.exists(target_dir.parent):
             os.makedirs(target_dir.parent)
@@ -127,9 +130,16 @@ class RunFunctionUsecase:
 
         return []
 
-    async def _stream_prints(self, process, user_id, run_id, start_time):
+    async def _stream_prints(self, process, user_id, run_id, start_time, function_id):
         for line in iter(process.stdout.readline, ""):
-            message = {"id": run_id, "start_time": start_time, "text": line.rstrip(), "type": "log"}
+            message = {
+                "id": run_id,
+                "start_time": start_time,
+                "text": line.rstrip(),
+                "type": "log",
+                "function_id": function_id
+            }
+
             id = await self.log_stream.add(logs_key_f(user_id, run_id), message, 30)
             message["timestamp"] = id
             await self.log_stream.publish(pubsub_key_f(user_id), json.dumps(message))
@@ -150,7 +160,12 @@ class RunFunctionUsecase:
         execution_time = logs[-1]["text"]
         logs = logs[:-1]
 
-        last_message = json.dumps({"type": "stop", "start_time": start_time, "id": run_id, "text": execution_time})
+        last_message = json.dumps({
+            "type": "stop",
+            "start_time": start_time,
+            "id": run_id, "text": execution_time,
+            "function_id": function_id
+        })
         await self.log_stream.publish(pubsub_key_f(user_id), last_message)
 
         if user_id in self.socket.get_connections():

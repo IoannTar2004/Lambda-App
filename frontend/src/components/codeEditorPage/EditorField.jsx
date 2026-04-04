@@ -84,7 +84,7 @@ export const EditorField = ({globalContextMenu, setGlobalContextMenu}) => {
           </div>
 
         </header>
-        <Fragment style={{visibility: currentFile && !globalContextMenu ? "visible" : "hidden"}}>
+        <div className={styles.editor} style={{visibility: currentFile && !globalContextMenu ? "visible" : "hidden"}}>
           <Editor width={"100%"}
                 path={currentFile?.name}
                 defaultValue={""} theme="vs-dark"
@@ -95,7 +95,7 @@ export const EditorField = ({globalContextMenu, setGlobalContextMenu}) => {
                   fontSize: 17,
                   fontLigatures: true
                 }}/>
-        </Fragment>
+        </div>
 
       </div>
     )

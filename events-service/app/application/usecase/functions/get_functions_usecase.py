@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy.util import await_only
 
 from application.ports.db_transaction import DBTransaction
+from application.usecase.functions.delete_function_usecase import DeleteFunctionUsecase
 from domain.models.function import Function
 from domain.models.s3_function import S3Function
 
@@ -41,7 +42,7 @@ class GetFunctionsUsecase:
                 raise HTTPException(status_code=403, detail="Functions don't belong to this user")
 
             return [self._get_function_response(f) | await self._get_service_information(f.service, f.id, tx)
-                    for f in functions]
+                    for f in functions if f.relations["handler"]]
 
 
     def _get_function_response(self, function):

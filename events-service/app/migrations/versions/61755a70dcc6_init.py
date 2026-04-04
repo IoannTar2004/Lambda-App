@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 310cd81000db
+Revision ID: 61755a70dcc6
 Revises: 
-Create Date: 2026-04-03 01:52:29.115128
+Create Date: 2026-04-04 10:54:26.574284
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '310cd81000db'
+revision: str = '61755a70dcc6'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -34,10 +34,11 @@ def upgrade() -> None:
     sa.Column('user_id', sa.BigInteger(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('service', sa.String(), nullable=False),
-    sa.Column('project_version', sa.BigInteger(), nullable=False),
+    sa.Column('project_version', sa.Integer(), nullable=False),
+    sa.Column('base_version', sa.Integer(), nullable=False),
     sa.Column('project_id', sa.BigInteger(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('environment', sa.Enum('PYTHON_3', name='environmentenum'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )

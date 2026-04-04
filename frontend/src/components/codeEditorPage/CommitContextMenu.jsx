@@ -1,6 +1,6 @@
 import styles from "../../css/CodeEditor.module.css"
 import {Fragment, useEffect, useRef, useState} from "react";
-import {HTTPMethods, httpRequest} from "../../utils/requests.js";
+import {HTTPMethods, httpRequest, printError} from "../../utils/requests.js";
 import {useParams} from "react-router";
 
 export const CommitContextMenu = ({globalContextMenu, setGlobalContextMenu}) => {
@@ -48,9 +48,19 @@ export const CommitContextMenu = ({globalContextMenu, setGlobalContextMenu}) => 
           if (!globalContextMenu) return
 
           const files = e.data
-          setDeletedFiles(files.map(file => ({ ...file })))
-          if (files.length > 0)
+          if (files.length > 0) {
+            setDeletedFiles(files.map(file => ({ ...file })))
             setHandlers(files)
+          }
+          else {
+            setDeletedFiles(null)
+            console.log(e.data)
+            httpRequest(HTTPMethods.POST, "/api/events/project/commit-project", {
+              projectId: id,
+              functions: {}
+            })
+                .then(() => setGlobalContextMenu(null)).catch(() => setGlobalContextMenu(null))
+          }
         })
   }, []);
 
@@ -66,11 +76,10 @@ export const CommitContextMenu = ({globalContextMenu, setGlobalContextMenu}) => 
   }, [setGlobalContextMenu]);
 
   if (!deletedFiles)
-    return (<div className={"cloudyBackground"}>
-        <div className={styles.globalContextMenu}>
-          <span className={"loader"}></span>
-        </div>
-    </div>)
+    return (
+      <div className={"cloudyBackground"}>
+        <span className={"loader"}></span>
+      </div>)
 
   return (
       <div className={"cloudyBackground"}>

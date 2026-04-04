@@ -8,6 +8,7 @@ class Function:
     name: str
     service: str
     project_version: int
+    base_version: int
     project_id: int
     environment: str
 

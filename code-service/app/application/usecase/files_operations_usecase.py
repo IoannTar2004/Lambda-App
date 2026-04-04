@@ -22,7 +22,7 @@ class FilesOperationsUseCase:
         raise HTTPException(status_code=404, detail="File not found")
 
     async def listdir(self, bucket: str, path: str):
-        directories, files = await self.storage.listdir(bucket, path)
+        directories, files = await self.storage.listdir(bucket, path + "/")
         return ListdirDto(
             directories=[Path(d["Prefix"]).name for d in directories],
             files=[{

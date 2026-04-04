@@ -6,7 +6,7 @@ from pydantic import Field
 from application.usecase.commands.delete_functions_command import DeleteArchivesCommand
 from application.usecase.commands.delete_version_command import DeleteVersionCommand
 from application.usecase.commands.zip_project_command import ZipProjectCommand
-from application.usecase.delete_all_archives_usecase import DeleteAllArchivesUsecase
+from application.usecase.delete_all_usecase import DeleteAllUsecase
 from application.usecase.delete_version_usecase import DeleteVersionUsecase
 from application.usecase.delete_with_unzip_usecase import DeleteWithUnzip
 from infrastructure.web.dto.zip.delete_functions_dto import DeleteArchivesDTO
@@ -30,14 +30,6 @@ async def delete_version(data: ZipProjectDto, request: Request):
     storage = request.app.state.s3_code
     delete_version_usecase = DeleteVersionUsecase(storage)
     await delete_version_usecase.execute(to_command(ZipProjectCommand, data))
-
-    return {"success": True}
-
-@zip_router.delete("/delete-all-archives")
-async def delete_all_archives(user_id: int, project_id: int, request: Request):
-    storage = request.app.state.s3_code
-    delete_all_archives = DeleteAllArchivesUsecase(storage)
-    await delete_all_archives.execute(user_id, project_id)
 
     return {"success": True}
 

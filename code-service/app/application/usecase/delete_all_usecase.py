@@ -5,17 +5,15 @@ from application.usecase.commands.delete_functions_command import DeleteArchives
 from settings import settings
 
 
-class DeleteAllArchivesUsecase:
+class DeleteAllUsecase:
 
     def __init__(self, storage: Storage):
         self.storage = storage
 
-    async def execute(self, user_id: int, project_id: int):
-        _, files = await self.storage.listdir(settings.S3_CODE_ARCHIVES_BUCKET, f"{user_id}/{project_id}/")
+    async def execute(self, bucket: str, path: str):
+        files = await self.storage.recursive_listdir(bucket, path)
         if not files:
             return
 
-        print(files)
         files = [f["Key"] for f in files]
-        print(files)
-        await self.storage.delete(settings.S3_CODE_ARCHIVES_BUCKET, files)
+        await self.storage.delete(bucket, files)

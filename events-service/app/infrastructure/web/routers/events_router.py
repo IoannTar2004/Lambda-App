@@ -9,5 +9,5 @@ events_router = APIRouter(prefix="/api/events/publish", tags=["Events"])
 async def s3(request: Request):
     body = await request.json()
     publish_event_usecase = PublishS3EventUsecase(request.app.state.publisher, SqlAlchemyDBTransaction())
-    # await publish_event_usecase.execute(body)
+    await publish_event_usecase.execute(body)
     return {"success": True}

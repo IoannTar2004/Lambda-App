@@ -22,23 +22,43 @@ class RollbackProjectUsecase:
                 raise HTTPException(status_code=404, detail="Function does not exist")
             project: Project = project_list[0]
             if project.version_number == 0:
-                raise HTTPException(status_code=409, detail="Cannot rollback. Version number is 0")
+                raise HTTPException(status_code=409, detail={
+                    "type": "v0",
+                    "details": "Cannot rollback. Version number is 0"
+                })
 
-            project.version_number -= 1
-            await tx.delete(project.relations["last_revision"])
-            project_revision = project.relations["last_revision"]
-            await tx.update(project)
-
+            conflict_handlers = []
             for function in project.relations["functions"]:
                 handler_list = await tx.get_by_filters(FunctionHandler, function_id=function.id,
                                                   project_version=function.project_version)
                 if not handler_list:
                     raise HTTPException(status_code=404, detail="Function handler does not exist")
-                handler = handler_list[0]
+                handler: FunctionHandler = handler_list[0]
+
+                if function.project_version == function.base_version:
+                    conflict_handlers.append({
+                        "id": function.id,
+                        "name": function.name,
+                        "service": function.service,
+                        "handler_path": handler.function_path,
+                        "handler": handler.function_name
+                    })
+                    continue
 
                 function.project_version -= 1
                 await tx.update(function)
                 await tx.delete(handler)
+
+            if conflict_handlers:
+                raise HTTPException(status_code=409, detail={
+                    "type": "conflict handlers",
+                    "details": conflict_handlers
+                })
+
+            project.version_number -= 1
+            await tx.delete(project.relations["last_revision"])
+            project_revision = project.relations["last_revision"]
+            await tx.update(project)
 
             payload = {
                 "user_id": project.user_id,

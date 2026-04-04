@@ -54,7 +54,7 @@ async def commit_project(data: CommitProjectDTO, request: Request):
     return {"success": True}
 
 @project_router.delete("/rollback")
-async def rollback(project_id: int, hard: Annotated[bool, Field(default=False)], request: Request):
+async def rollback(request: Request, project_id: int, hard: bool = False):
     user_id = request.state.credentials["user_id"]
     async_req = HttpxAsyncRequest()
     db_transaction = SqlAlchemyDBTransaction()

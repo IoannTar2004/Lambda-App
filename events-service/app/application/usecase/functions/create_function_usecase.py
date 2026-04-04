@@ -32,8 +32,9 @@ class CreateFunctionUseCase:
                                 service=service,
                                 name=data.name,
                                 project_version=project.version_number,
+                                base_version=project.version_number,
                                 project_id=data.project_id,
-                                environment=data.environment,
+                                environment=data.environment
                                 )
             function = await tx.insert(function)
 

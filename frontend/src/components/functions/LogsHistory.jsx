@@ -2,7 +2,7 @@ import styles from "../../css/Function.module.css"
 import {useEffect, useRef, useState} from "react";
 import BTree from "sorted-btree";
 import {getStringDate} from "../../utils/formats.js";
-import {data, useNavigate} from "react-router";
+import {data, useNavigate, useParams} from "react-router";
 import {HTTPMethods, httpRequest} from "../../utils/requests.js";
 
 export const LogsHistory = ({id}) => {
@@ -37,6 +37,9 @@ export const LogsHistory = ({id}) => {
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data)
+      console.log(Number(msg["function_id"]), Number(id))
+      if (msg["function_id"] !== parseInt(id)) return
+
       const log = {
         id: msg["id"],
         createdAt: parseFloat(msg["start_time"]) * 1000,

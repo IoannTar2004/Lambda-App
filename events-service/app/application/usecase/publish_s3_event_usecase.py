@@ -42,12 +42,12 @@ class PublishS3EventUsecase:
                                                           version_number=function.project_version))[0].id
                 message_with_metadata = {
                     "user_id": function.user_id,
+                    "project_id": function.project_id,
                     "function_id": function.id,
                     "environment": function.environment,
                     "revision_id": revision_id,
-                    "project_version": handler.project_version,
-                    "function_path": handler.handler_path,
-                    "function_name": handler.handler,
+                    "function_path": handler.function_path,
+                    "function_name": handler.function_name,
                     "memory_size": handler.memory_size,
                     "timeout": handler.timeout,
                     "message": message

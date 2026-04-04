@@ -4,7 +4,6 @@ import {deleteMetaFromName} from "../../utils/reserved.js";
 
 const displayHeaders = {
   "id": "ID",
-  "created_at": "Дата создания",
   "service": "Сервис",
   "environment": "Окружение",
   "handlerPath": "Путь к обработчику",
@@ -21,7 +20,6 @@ const displayTexts = {
 }
 
 export const FunctionDescription = ({description}) => {
-
   const display = (name) => {
     if (typeof name === "object") {
       name = name.map(e => displayTexts[e] || e)
@@ -40,6 +38,9 @@ export const FunctionDescription = ({description}) => {
             {display(deleteMetaFromName(e, description[e]))}
           </div>
         ))}
+          <div className={styles.parameter}>
+            <span className={styles.head}>Дата создания: </span>{getStringDate(description.createdAt)}
+          </div>
           <div className={styles.parameter}>
             <span className={styles.head}>Размер памяти: </span>{description.memorySize} МБ
           </div>

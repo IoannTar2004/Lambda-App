@@ -36,9 +36,6 @@ class CommitProjectUseCase:
             update_handlers_dict = data["functions"]
             for function in function_list:
                 handler: FunctionHandler = function.relations["handler"]
-                if not handler:
-                    raise HTTPException(status_code=404, detail="Handler not found")
-
                 function.project_version += 1
                 await tx.update(function)
                 new_handler = FunctionHandler(function_id=function.id,

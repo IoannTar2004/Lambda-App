@@ -3,6 +3,7 @@ import {Fragment, useEffect, useRef, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router";
 import {HTTPMethods, httpRequest, printError} from "../../utils/requests.js";
 import {HttpStatusCode} from "axios";
+import {isReservedFile} from "../../utils/reserved.js";
 
 export const CreateFunctionPage = () => {
 
@@ -28,7 +29,8 @@ export const CreateFunctionPage = () => {
         path: ""
       }).then((e) => {
           const project = e.data
-          const getStructure = project.map(e => e.key.split("/").slice(2).join("/"))
+          let getStructure = project.map(e => e.key.split("/").slice(2).join("/"))
+          getStructure = getStructure.filter(e => !isReservedFile(e.split("/").pop()))
           setProjectStructure(getStructure)
         })
   }, []);

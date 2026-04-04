@@ -1,4 +1,6 @@
+import asyncio
 import os
+import sys
 
 from contextlib import asynccontextmanager
 
@@ -20,6 +22,19 @@ from settings import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # if sys.platform == "win32":
+        # На Windows нужно использовать ProactorEventLoop
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
+    process = await asyncio.create_subprocess_exec(
+        "cmd", "/c", "echo Hello",
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+
+    stdout, stderr = await process.communicate()
+    print(stdout.decode())
+
     if not os.path.exists(settings.CODE_ARCHIVES_DIRECTORY):
         os.mkdir(settings.CODE_ARCHIVES_DIRECTORY)
 

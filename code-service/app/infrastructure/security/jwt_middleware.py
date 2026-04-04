@@ -8,7 +8,7 @@ from settings import settings
 
 class JWTMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        public_paths = ["/health", "/api/code/get-jwt-token", "/docs", "/openapi.json"]
+        public_paths = ["/health", "/api/code/auth/get-jwt-token", "/docs", "/openapi.json"]
 
         if request.url.path in public_paths:
             return await call_next(request)

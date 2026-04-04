@@ -27,8 +27,6 @@ class GetDeletedFilesUsecase:
 
         async with self.db_transaction as tx:
             functions: list[Function]= await tx.get_by_filters(Function, _joins=["handler"], project_id=project_id)
-            if not functions:
-                raise HTTPException(status_code=404, detail="Functions not found")
 
             deleted = []
             for function in functions:

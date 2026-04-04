@@ -20,11 +20,8 @@ export const ProjectDescription = ({projectData}) => {
   const countFiles = (files) => {
     let lastModified = 0
     const filesExtension = {}
-
+    files = files.filter(e => !isReservedFile(e.key.split("/").pop()))
     for (let f of files) {
-      if (isReservedFile(f.key.split("/").pop()))
-        continue
-
       lastModified = Math.max(new Date(f.lastModified).getTime(), lastModified)
       const extension = f.key.split('.').pop()
 

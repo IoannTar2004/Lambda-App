@@ -4,6 +4,7 @@ from fastapi import APIRouter, UploadFile, Request
 from fastapi.params import Form
 from starlette.responses import StreamingResponse
 
+from application.usecase.delete_all_usecase import DeleteAllUsecase
 from application.usecase.files_operations_usecase import FilesOperationsUseCase
 
 files_router = APIRouter(prefix="/api/code/file", tags=["File (Admin and Communication roles only)"])
@@ -37,7 +38,15 @@ async def listdir_all(request: Request, bucket: str, path: str = ""):
     return files
 
 @files_router.delete("/delete-file")
-async def delete_file(bucket: str, path: str, request: Request):
+async def delete_file(bucket: str, path: list[str], request: Request):
     files_operations_usecase = FilesOperationsUseCase(request.app.state.s3_code)
     await files_operations_usecase.delete(bucket, path)
+    return {"success": True}
+
+@files_router.delete("/delete-all")
+async def delete_all(request: Request, bucket: str, path: str = ""):
+    storage = request.app.state.s3_code
+    delete_all_usecase = DeleteAllUsecase(storage)
+    await delete_all_usecase.execute(bucket, path)
+
     return {"success": True}

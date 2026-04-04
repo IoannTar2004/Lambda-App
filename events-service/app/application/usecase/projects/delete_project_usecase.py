@@ -31,17 +31,26 @@ class DeleteProjectUsecase:
                     case "S3":
                         await self._delete_s3_events(function.id, tx)
 
-            await self.async_req.delete(
-                endpoint="/api/code/zip/delete-all-archives",
-                service_name="code-service",
+            await self.async_req.delete("/api/code/file/delete-all", "code-service",
                 params={
-                    "user_id": user_id,
-                    "project_id": project_id
+                    "bucket": "user-code",
+                    "path": f"{user_id}/{project_id}"
                 },
                 headers={
                     "Authorization": settings.COMMUNICATION_TOKEN
                 }
             )
+
+            await self.async_req.delete("/api/code/file/delete-all", "code-service",
+                params={
+                    "bucket": "code-archives",
+                    "path": f"{user_id}/{project_id}"
+                },
+                headers={
+                    "Authorization": settings.COMMUNICATION_TOKEN
+                }
+            )
+
             await tx.delete(project)
 
     async def _delete_s3_events(self, id: int, tx: DBTransaction):

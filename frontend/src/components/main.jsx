@@ -17,7 +17,7 @@ import {DeleteProjectPage} from "./start/DeleteProjectPage.jsx";
 const baseURL = "/app/project123456/services/lambda"
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path={baseURL} element={<VkCloudTemplate />}>
@@ -35,5 +35,5 @@ createRoot(document.getElementById('root')).render(
       </Routes>
     </BrowserRouter>
 
-  </StrictMode>
+  // </StrictMode>
 )
