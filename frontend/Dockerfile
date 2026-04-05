@@ -4,12 +4,10 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
+ARG MODE=example
+ENV MODE=$MODE
 
 COPY . .
-
-ARG MODE=example
-
-ENV MODE=$MODE
 
 RUN npm run build -- --mode $MODE
 

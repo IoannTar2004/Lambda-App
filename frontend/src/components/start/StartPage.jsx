@@ -10,7 +10,8 @@ export const StartPage = () => {
   const [clickedProject, setClickedProject] = useState(null)
 
   useEffect(() => {
-    httpRequest(HTTPMethods.GET, "/api/code/auth/get-jwt-token", {userId: 300904}).then(e => {
+    const userId = import.meta.env.VITE_USER_ID;
+    httpRequest(HTTPMethods.GET, "/api/code/auth/get-jwt-token", {userId: userId}).then(e => {
       const token = e.data.accessToken
       if (token) {
         localStorage.setItem("accessToken", `Bearer ${token}`)

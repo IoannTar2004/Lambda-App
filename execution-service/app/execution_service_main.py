@@ -1,20 +1,15 @@
-import asyncio
-import os
-import sys
-
 from contextlib import asynccontextmanager
 
 import uvicorn
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
 import infrastructure.messaging.kafka.consumers
+
 from fastapi import FastAPI
 from faststream import FastStream
 
-from application.utils.dir_cleaner import dir_cleaner_start
 from custom_openapi import custom_openapi
 from infrastructure.cache.redis_connection import redis_connection
 from infrastructure.config.consul import service_register, service_unregister
+from infrastructure.docker.mounts import DocketMounts
 from infrastructure.messaging.kafka.kafka import broker
 from infrastructure.security.jwt_middleware import JWTMiddleware
 from infrastructure.web.routers.log_router import log_router
@@ -22,6 +17,7 @@ from settings import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    DocketMounts.set_mounts()
     fast_stream = FastStream(broker)
     await fast_stream.start()
     await service_register()
@@ -45,4 +41,4 @@ async def health():
     return {"status": "ok"}
 
 if __name__ == "__main__":
-    uvicorn.run("execution_service_main:app", port=8003, reload=True)
+    uvicorn.run("execution_service_main:app", host="0.0.0.0", port=8003,  reload=True)

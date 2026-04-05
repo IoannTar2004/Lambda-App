@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
 
-import redis.asyncio as redis
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -21,7 +20,6 @@ load_dotenv(settings.Config.env_file)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.cache = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
     app.state.s3_service = AsyncS3NotificationService(settings.S3_USER_URL,
                                                    settings.S3_USER_ACCESS_KEY, settings.S3_USER_SECRET_KEY)
     await service_register()
@@ -53,4 +51,4 @@ async def health():
     return {"status": "ok"}
 
 if __name__ == "__main__":
-    uvicorn.run("events_service_main:app", port=8002, reload=True)
+    uvicorn.run("events_service_main:app", host="0.0.0.0", port=8002, reload=True)

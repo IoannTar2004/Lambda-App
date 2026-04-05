@@ -17,9 +17,14 @@ ARG ENVFILE=.env.example
 ENV PATH=/root/.local/bin:$PATH
 ENV ENV_FILE=$ENVFILE
 
+RUN apt-get update
+RUN apt-get install -y curl
+RUN apt-get install -y docker.io
+RUN rm -rf /var/lib/apt/lists/*
+RUN mkdir /usr/code_archives
+
 COPY . .
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/
 
-EXPOSE 8001
+EXPOSE 8003
 
-CMD ["python", "app/code_service_main.py"]
+CMD ["python", "-u", "app/execution_service_main.py"]

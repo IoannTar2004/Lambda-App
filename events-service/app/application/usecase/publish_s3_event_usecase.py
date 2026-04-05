@@ -1,3 +1,5 @@
+import json
+
 from fastapi import HTTPException
 
 from application.ports.db_transaction import DBTransaction
@@ -15,7 +17,8 @@ class PublishS3EventUsecase:
         self.db_transaction = db_transaction
 
     async def execute(self, message):
-        bucket = message["Records"][0]["minio"]["bucket"]["name"]
+        print(json.dumps(message, indent=2))
+        bucket = message["Records"][0]["s3"]["bucket"]["name"]
         event = message["EventName"]
         key = ''.join(message["Key"].split("/")[1:])
         sql = ("select * from s3_functions "

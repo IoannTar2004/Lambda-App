@@ -29,12 +29,13 @@ class RunnableListUseCase:
             tmpfile.seek(0)
             loop = asyncio.get_running_loop()
 
-            functions_list = await loop.run_in_executor(executor, ast_analyze_functions, tmpfile.read())
+            if path.endswith(".py"):
+                return await loop.run_in_executor(executor, ast_analyze_functions_python, tmpfile.read())
 
-        return functions_list
+        return []
 
 
-def ast_analyze_functions(read_bytes: bytes):
+def ast_analyze_functions_python(read_bytes: bytes):
     tree = ast.parse(read_bytes)
     functions_list = []
     for node in ast.walk(tree):

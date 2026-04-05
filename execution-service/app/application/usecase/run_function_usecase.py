@@ -19,6 +19,7 @@ from application.ports.log_stream import LogStream
 from application.ports.socket import Socket
 from application.utils.redis_formats import run_function_f, logs_key_f, pubsub_key_f
 from infrastructure.config.logger_config import logger
+from infrastructure.docker.mounts import DocketMounts
 from settings import settings
 
 
@@ -31,12 +32,10 @@ class RunFunctionUsecase:
         self.cache = cache
 
     async def execute(self, function_meta):
-        print("ok")
         revision_id = function_meta["revision_id"]
         project_id = function_meta["project_id"]
         function_id = function_meta["function_id"]
         user_id = function_meta["user_id"]
-        script_path = Path(settings.LAMBDA_SCRIPT_PATH)
         function_name = function_meta["function_name"]
 
         target_dir = Path(settings.CODE_ARCHIVES_DIRECTORY) / str(project_id) / str(revision_id)
@@ -57,9 +56,14 @@ class RunFunctionUsecase:
         start_time = time.time()
         def run_docker():
             nonlocal process
-            command = self._get_docker_command(container_name, script_path, target_dir, function_meta["function_path"],
-                                               function_name, json.dumps(function_meta["message"]),
+            archive_mount_directory = Path(DocketMounts.archives_path) / str(project_id) / str(revision_id)
+            command = self._get_docker_command(container_name, archive_mount_directory,
+                                               function_meta["function_path"],
+                                               function_name,
+                                               function_meta["memory_size"],
+                                               json.dumps(function_meta["message"]),
                                                environment=function_meta["environment"])
+            print(command)
             process = subprocess.Popen(
                     command,
                     stdout=subprocess.PIPE,
@@ -150,7 +154,7 @@ class RunFunctionUsecase:
             if os.path.exists(tmpfile.name):
                 os.remove(tmpfile.name)
 
-    def _get_docker_command(self, name, script_path, target_dir, function_path, function_name,
+    def _get_docker_command(self, name, target_dir, function_path, function_name, memory_size,
                             *args, environment :str = "python"):
         if environment == "Python 3":
             return [
@@ -159,10 +163,11 @@ class RunFunctionUsecase:
                 "--rm", "--read-only",
                 "-e", "PYTHONUNBUFFERED=1",
                 "--tmpfs", "/mnt/usr:size=64M,mode=1777",
-                "-v", f"{script_path}:/usr/lambda_run.py",
+                f"--memory={memory_size}m",
+                "-v", f"{DocketMounts.lambda_path}:/usr/lambda_run.py",
                 "-v", f"{target_dir}:/usr/src",
                 "-w", "/usr/src",
-                "python:3", "python", "-u", "/usr/lambda_run.py",
+                "python:3.12", "python", "-u", "/usr/lambda_run.py",
                 function_path, function_name, *args
             ]
 
@@ -201,6 +206,7 @@ class RunFunctionUsecase:
         execution_time = logs[-1]["text"] if not timeout else timeout
         logs = logs[:-1]
 
+
         last_message = json.dumps({
             "type": "stop",
             "start_time": start_time,
@@ -230,4 +236,3 @@ class RunFunctionUsecase:
             "function_id": function_id,
             "execution_time": execution_time
         })
-

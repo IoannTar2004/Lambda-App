@@ -1,6 +1,6 @@
 import jwt
 from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi import Request, HTTPException
+from fastapi import Request
 from starlette.responses import JSONResponse
 
 from settings import settings

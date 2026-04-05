@@ -15,9 +15,6 @@ class Settings(BaseSettings):
     S3_USER_ACCESS_KEY: str
     S3_USER_SECRET_KEY: str
 
-    REDIS_HOST: str
-    REDIS_PORT: int
-
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str

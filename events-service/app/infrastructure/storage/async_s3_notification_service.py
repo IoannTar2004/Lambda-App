@@ -16,7 +16,7 @@ class AsyncS3NotificationService(StorageNotification):
 
 
     async def add_notification(self, id: str, bucket: str, events: list[str], prefix: str = None, suffix: str = None):
-        async with self.session.client("minio", endpoint_url=self.url) as s3_client:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
             try:
                 configurations: dict = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
             except ClientError as e:
@@ -46,7 +46,7 @@ class AsyncS3NotificationService(StorageNotification):
                                                                   NotificationConfiguration=configurations)
 
     async def remove_notification(self, id: str, bucket: str):
-        async with self.session.client("minio", endpoint_url=self.url) as s3_client:
+        async with self.session.client("s3", endpoint_url=self.url) as s3_client:
             configurations = await s3_client.get_bucket_notification_configuration(Bucket=bucket)
             configurations.pop("ResponseMetadata")
             if "QueueConfigurations" not in configurations:
