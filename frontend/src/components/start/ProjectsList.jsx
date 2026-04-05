@@ -33,7 +33,7 @@ export const ProjectsList = ({setClickedProject}) => {
             <span className={"loader dark"}></span>
           </div>
         </div>)
-// TODO исправить время последнего изменения
+
   return (
       <div className={styles.projectsBox}>
         <h3>Проекты</h3>

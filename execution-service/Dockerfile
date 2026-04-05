@@ -21,10 +21,9 @@ RUN apt-get update
 RUN apt-get install -y curl
 RUN apt-get install -y docker.io
 RUN rm -rf /var/lib/apt/lists/*
-RUN mkdir /usr/code_archives
 
 COPY . .
 
 EXPOSE 8003
 
-CMD ["python", "-u", "app/execution_service_main.py"]
+CMD ["sh", "-c", "rm -rf /usr/code_archives/* && python -u app/execution_service_main.py"]

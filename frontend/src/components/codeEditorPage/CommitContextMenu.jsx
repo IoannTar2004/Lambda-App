@@ -54,7 +54,6 @@ export const CommitContextMenu = ({globalContextMenu, setGlobalContextMenu}) => 
           }
           else {
             setDeletedFiles(null)
-            console.log(e.data)
             httpRequest(HTTPMethods.POST, "/api/events/project/commit-project", {
               projectId: id,
               functions: {}

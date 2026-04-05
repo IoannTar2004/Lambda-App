@@ -14,7 +14,9 @@
     background-color: black;
     color: white;
     font-family: "Courier New", serif;
-    word-break: break-all;
+    word-break: break-word;
+    white-space: pre-wrap;    /* ← Добавить! Переносит текст */
+    overflow-wrap: break-word;
     padding: 20px;
     box-sizing: border-box;
 }

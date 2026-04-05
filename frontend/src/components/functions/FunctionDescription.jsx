@@ -16,7 +16,8 @@ const displayHeaders = {
 }
 
 const displayTexts = {
-  "s3:ObjectCreated:Put": "Загрузить файл"
+  "s3:ObjectCreated:Put": "Загрузить файл",
+  "s3:ObjectRemoved:Delete": "Удалить файл"
 }
 
 export const FunctionDescription = ({description}) => {

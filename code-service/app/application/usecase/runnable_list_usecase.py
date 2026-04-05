@@ -19,7 +19,7 @@ class RunnableListUseCase:
         self.storage = storage
 
     async def execute(self, path: str):
-        if not self.storage.exists(settings.S3_USER_CODE_BUCKET, path):
+        if not await self.storage.exists(settings.S3_USER_CODE_BUCKET, path):
             raise HTTPException(status_code=404, detail="File not found")
 
         with tempfile.TemporaryFile() as tmpfile:
@@ -30,7 +30,10 @@ class RunnableListUseCase:
             loop = asyncio.get_running_loop()
 
             if path.endswith(".py"):
-                return await loop.run_in_executor(executor, ast_analyze_functions_python, tmpfile.read())
+                try:
+                    return await loop.run_in_executor(executor, ast_analyze_functions_python, tmpfile.read())
+                except:
+                    pass
 
         return []
 

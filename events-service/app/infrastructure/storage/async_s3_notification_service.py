@@ -41,6 +41,7 @@ class AsyncS3NotificationService(StorageNotification):
                 }
             })
             configurations["QueueConfigurations"] = queue_configurations
+            print(configurations["QueueConfigurations"])
 
             await s3_client.put_bucket_notification_configuration(Bucket=bucket,
                                                                   NotificationConfiguration=configurations)

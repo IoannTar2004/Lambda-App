@@ -20,12 +20,12 @@ async def lifespan(app: FastAPI):
     DocketMounts.set_mounts()
     fast_stream = FastStream(broker)
     await fast_stream.start()
-    await service_register()
+    # await service_register()
     await redis_connection.start(settings.REDIS_HOST, settings.REDIS_PORT)
 
     yield
 
-    await service_unregister()
+    # await service_unregister()
     await fast_stream.stop()
     await redis_connection.close()
 

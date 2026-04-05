@@ -37,7 +37,6 @@ export const LogsHistory = ({id}) => {
 
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data)
-      console.log(Number(msg["function_id"]), Number(id))
       if (msg["function_id"] !== parseInt(id)) return
 
       const log = {

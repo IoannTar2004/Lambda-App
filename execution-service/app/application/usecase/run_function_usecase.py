@@ -63,7 +63,6 @@ class RunFunctionUsecase:
                                                function_meta["memory_size"],
                                                json.dumps(function_meta["message"]),
                                                environment=function_meta["environment"])
-            print(command)
             process = subprocess.Popen(
                     command,
                     stdout=subprocess.PIPE,
@@ -104,10 +103,8 @@ class RunFunctionUsecase:
                 asyncio.to_thread(thread.join),
                 timeout=function_meta["timeout"]
             )
-
             await log_queue.join()
             await writer_task
-
             await self._flush_logs(user_id, function_id, run_id, start_time)
 
         except asyncio.TimeoutError:
@@ -203,9 +200,9 @@ class RunFunctionUsecase:
     async def _flush_logs(self, user_id, function_id, run_id, start_time, timeout=None):
         logs = await self.log_stream.read(logs_key_f(user_id, run_id))
         logs = [{"timestamp": id, "text": text["text"]} for id, text in logs]
-        execution_time = logs[-1]["text"] if not timeout else timeout
+        print(logs)
+        execution_time = logs[-1]["text"] if timeout is None else timeout
         logs = logs[:-1]
-
 
         last_message = json.dumps({
             "type": "stop",

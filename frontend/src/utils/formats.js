@@ -9,7 +9,7 @@ export const getStringDate = (time, includeMilliseconds) => {
 
    if (includeMilliseconds) {
     const ms = String(date.getMilliseconds()).padStart(3, '0');
-    formatted = `${formatted}.${ms}`;  // ← точка, а не двоеточие
+    formatted = `${formatted}.${ms}`;
   }
 
   return formatted;

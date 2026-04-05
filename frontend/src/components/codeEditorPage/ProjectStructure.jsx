@@ -61,7 +61,6 @@ export const ProjectStructure = () => {
   const handleDeleteClick = () => {
     const deletePath = contextMenu.path
     const deleteKeys = baseStructure.filter((path) => checkPath(path, deletePath))
-    console.log(deleteKeys)
     httpRequest(HTTPMethods.DELETE, "/api/code/user-files/delete", {
       projectId: id,
       keys: deleteKeys

@@ -86,6 +86,8 @@ export const CreateFunctionPage = () => {
         .catch((err) => {
           if (err.status === HttpStatusCode.Conflict) {
             setError("Функция с таким названием уже существует!")
+          } else if (err.status === HttpStatusCode.NotFound) {
+            setError("Бакет не найден!")
           }
           setParameters(parameters)
           setIsProcessing(false)
@@ -177,8 +179,8 @@ const ServiceParameters = ({service, parameters, handleOnChange, handleCheckboxe
                        onChange={e => handleCheckboxes("events", e.target.value, e.target.checked)}/> Загрузить объект
               </label>
               <label>
-                <input checked={parameters?.events?.includes("minio:ObjectRemoved:Delete") || false} type={"checkbox"}
-                       value={"minio:ObjectRemoved:Delete"}
+                <input checked={parameters?.events?.includes("s3:ObjectRemoved:Delete") || false} type={"checkbox"}
+                       value={"s3:ObjectRemoved:Delete"}
                        onChange={e => handleCheckboxes("events", e.target.value, e.target.checked)}/> Удалить объект
               </label>
             </div>

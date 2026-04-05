@@ -58,7 +58,6 @@ export const EditorField = ({globalContextMenu, setGlobalContextMenu}) => {
     httpRequestFormData("/api/code/user-files/upload-file", {
       projectId: id,
       file: createdFile,
-      directory: parentPath
     }).then(() => {
       saveButtonRef.current.textContent = "Сохранить"
       isProcessing.current = false

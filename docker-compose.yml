@@ -188,7 +188,6 @@ services:
       - "8003:8003"
     environment:
       - ENV_FILE=${ENV_FILE:-.env.example}
-      - HOST_LAMBDA_SCRIPT=${PWD}/execution-service/lambda_run.py
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./code-archives:/usr/code_archives

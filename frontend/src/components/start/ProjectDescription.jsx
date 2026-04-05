@@ -49,8 +49,6 @@ export const ProjectDescription = ({projectData}) => {
     }
     setProjectDescription(data)
     projectDescriptionCache.set(projectData.id, data)
-    console.log(lastModified)
-    // const data = new Date(files[0].lastModified).getTime()
 
   }
 
@@ -142,7 +140,7 @@ export const ProjectDescription = ({projectData}) => {
                 </div>}
 
                 {projectDescription.languages.map(e =>
-                  <div className={styles.languageItem}>
+                  <div key={e.language} className={styles.languageItem}>
                     <div className={styles.languageCircle} style={{backgroundColor: languagesColors[e.language]}}></div>
                     {e.language} ({e.percent}%)
                   </div>
