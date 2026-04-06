@@ -8,7 +8,7 @@ import {FunctionsListPage} from "./functions/FunctionsListPage.jsx";
 import {FunctionPage} from "./functions/FunctionPage.jsx";
 import {EditFunctionPage} from "./functions/EditFunctionPage.jsx";
 import {DeleteFunctionPage} from "./functions/DeleteFunctionPage.jsx";
-import {LogsPage} from "./logsPage/LogsPage.jsx";
+import {LogsPage} from "./logs/LogsPage.jsx";
 import {CodeEditorPage} from "./codeEditorPage/CodeEditorPage.jsx";
 import {CreateProjectPage} from "./start/CreateProjectPage.jsx";
 import {CreateFunctionPage} from "./functions/CreateFunctionPage.jsx";
