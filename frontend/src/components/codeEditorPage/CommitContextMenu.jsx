@@ -97,7 +97,7 @@ export const CommitContextMenu = ({globalContextMenu, setGlobalContextMenu}) => 
             </Fragment>
           ))}
           <div className={styles.submit}>
-            <button type={"submit"} onClick={commit}>Деплой</button>
+            <button type={"submit"} onClick={commit}>Версия</button>
           </div>
         </div>
       </div>

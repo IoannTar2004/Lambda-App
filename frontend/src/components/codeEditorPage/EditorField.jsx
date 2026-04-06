@@ -78,7 +78,7 @@ export const EditorField = ({globalContextMenu, setGlobalContextMenu}) => {
           <div className={styles.projectActions}>
             <button style={{visibility: currentFile ? "visible" : "hidden"}} ref={saveButtonRef} id={"saveCode"}
                     onClick={handleSaveButton}>Сохранить</button>
-            <button onClick={(e) => openGlobalContextMenu(e, "commit")}>Деплой</button>
+            <button onClick={(e) => openGlobalContextMenu(e, "commit")}>Версия</button>
             <button onClick={(e, ) => openGlobalContextMenu(e, "rollback")}>Откат</button>
           </div>
 
