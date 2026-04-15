@@ -1,12 +1,6 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Request
-from pydantic import Field
 
-from application.usecase.commands.delete_functions_command import DeleteArchivesCommand
-from application.usecase.commands.delete_version_command import DeleteVersionCommand
 from application.usecase.commands.zip_project_command import ZipProjectCommand
-from application.usecase.delete_all_usecase import DeleteAllUsecase
 from application.usecase.delete_version_usecase import DeleteVersionUsecase
 from application.usecase.delete_with_unzip_usecase import DeleteWithUnzip
 from infrastructure.web.dto.zip.delete_functions_dto import DeleteArchivesDTO
